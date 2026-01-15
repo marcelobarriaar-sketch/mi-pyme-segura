@@ -4,7 +4,8 @@ import { useData } from '../context/DataContext.tsx';
 import { 
   Lock, Plus, Trash2, Edit3, Save, X, 
   LayoutDashboard, Camera, Settings, 
-  CheckCircle, Info, AlertCircle
+  CheckCircle, Info, AlertCircle,
+  FileText, History
 } from 'lucide-react';
 
 export default function Admin() {
@@ -22,7 +23,7 @@ export default function Admin() {
   
   // Forms
   const [projForm, setProjForm] = useState({ title: '', type: '', location: '', description: '', result: '', image: '', iconType: 'ShieldCheck' });
-  const [equipForm, setEquipForm] = useState({ category: '', title: '', image: '', description: '', specs: '' });
+  const [equipForm, setEquipForm] = useState({ category: '', title: '', image: '', description: '', specs: '', technicalSheetUrl: '', updates: '' });
   const [settingsForm, setSettingsForm] = useState(settings);
 
   const handleAuth = (e: React.FormEvent) => {
@@ -34,7 +35,7 @@ export default function Admin() {
   const openAddModal = () => {
     setEditingId(null);
     setProjForm({ title: '', type: '', location: '', description: '', result: '', image: '', iconType: 'ShieldCheck' });
-    setEquipForm({ category: '', title: '', image: '', description: '', specs: '' });
+    setEquipForm({ category: '', title: '', image: '', description: '', specs: '', technicalSheetUrl: '', updates: '' });
     setIsModalOpen(true);
   };
 
@@ -43,7 +44,12 @@ export default function Admin() {
     if (activeTab === 'projects') {
       setProjForm({ ...item });
     } else {
-      setEquipForm({ ...item, specs: item.specs.join(', ') });
+      setEquipForm({ 
+        ...item, 
+        specs: item.specs.join(', '), 
+        technicalSheetUrl: item.technicalSheetUrl || '', 
+        updates: item.updates || '' 
+      });
     }
     setIsModalOpen(true);
   };
@@ -267,8 +273,20 @@ export default function Admin() {
                     <input value={equipForm.image} placeholder="https://..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, image: e.target.value})} />
                   </div>
                   <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                      <FileText className="w-3 h-3 text-[#cc0000]" /> Enlace Ficha Técnica (PDF/WEB)
+                    </label>
+                    <input value={equipForm.technicalSheetUrl} placeholder="https://mi-ficha-tecnica.com/manual.pdf" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, technicalSheetUrl: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                      <History className="w-3 h-3 text-[#cc0000]" /> Notas de Actualización / Versión
+                    </label>
+                    <textarea value={equipForm.updates} placeholder="Ej. Firmware v2.0: Soporta visión nocturna a color..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-20 font-medium" onChange={e => setEquipForm({...equipForm, updates: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Descripción Técnica</label>
-                    <textarea value={equipForm.description} placeholder="Características principales..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24 font-medium" onChange={e => setEquipForm({...equipForm, description: e.target.value})} />
+                    <textarea value={equipForm.description} placeholder="Características principales..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-20 font-medium" onChange={e => setEquipForm({...equipForm, description: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Especificaciones (Separar por comas)</label>

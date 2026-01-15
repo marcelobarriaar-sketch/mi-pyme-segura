@@ -19,6 +19,8 @@ interface TeamEquipment {
   image: string;
   description: string;
   specs: string[];
+  technicalSheetUrl?: string;
+  updates?: string;
 }
 
 interface GlobalSettings {
@@ -94,7 +96,9 @@ const initialEquipment: TeamEquipment[] = [
     title: "Cámaras Fijas tipo Bala",
     image: "https://images.unsplash.com/photo-1557597774-9d2739f85a76?auto=format&fit=crop&q=80&w=800",
     description: "Diseñadas para disuasión visual de largo alcance con visión nocturna infrarroja.",
-    specs: ["Resolución 4K UHD", "Protección IP67 (Clima Extremo)", "Analítica Humano/Vehículo"]
+    specs: ["Resolución 4K UHD", "Protección IP67 (Clima Extremo)", "Analítica Humano/Vehículo"],
+    technicalSheetUrl: "https://www.hikvision.com/en/products/IP-Products/Network-Cameras/Pro-Series-EasyIP-/ds-2cd2087g2-lu/",
+    updates: "Firmware v5.7.10 compatible con IA avanzada."
   },
   {
     id: 'e2',
@@ -102,7 +106,9 @@ const initialEquipment: TeamEquipment[] = [
     title: "Starlink Business Elite",
     image: "https://images.unsplash.com/photo-1620121692029-d088224ddc74?auto=format&fit=crop&q=80&w=800",
     description: "Internet satelital de alta velocidad para monitoreo remoto en zonas rurales extremas o marítimas.",
-    specs: ["Baja Latencia", "Cobertura Global", "Resiliencia Climática"]
+    specs: ["Baja Latencia", "Cobertura Global", "Resiliencia Climática"],
+    technicalSheetUrl: "https://www.starlink.com/business",
+    updates: "Optimización de señal para zonas marítimas activada."
   },
   {
     id: 'e3',
@@ -110,7 +116,8 @@ const initialEquipment: TeamEquipment[] = [
     title: "Estación Solar Autónoma",
     image: "https://images.unsplash.com/photo-1509391366360-fe5bb58583bb?auto=format&fit=crop&q=80&w=800",
     description: "Suministro eléctrico ininterrumpido mediante paneles solares y baterías de litio para cámaras en campos.",
-    specs: ["Autonomía 48 hrs sin sol", "Control de Carga Inteligente", "Cero cables externos"]
+    specs: ["Autonomía 48 hrs sin sol", "Control de Carga Inteligente", "Cero cables externos"],
+    updates: "Baterías de Litio Ferro-Fosfato de nueva generación."
   }
 ];
 
@@ -123,7 +130,6 @@ const initialSettings: GlobalSettings = {
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [projects, setProjects] = useState<Project[]>(() => {
     const saved = localStorage.getItem('mps_projects');
-    // Si ya hay algo guardado, lo usamos, pero si el usuario quiere "resetear" puede borrar el localStorage
     return saved ? JSON.parse(saved) : initialProjects;
   });
 

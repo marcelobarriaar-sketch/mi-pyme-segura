@@ -5,7 +5,9 @@ import {
   Cpu, 
   Zap, 
   Satellite,
-  ArrowRight
+  ArrowRight,
+  History,
+  ExternalLink
 } from 'lucide-react';
 
 const EquipmentCard: React.FC<{ 
@@ -13,13 +15,17 @@ const EquipmentCard: React.FC<{
   category: string, 
   image: string, 
   description: string, 
-  specs: string[] 
+  specs: string[],
+  technicalSheetUrl?: string,
+  updates?: string
 }> = ({ 
   title, 
   category, 
   image, 
   description, 
-  specs 
+  specs,
+  technicalSheetUrl,
+  updates
 }) => (
   <div className="group relative bg-white/5 rounded-[2.5rem] border border-white/5 overflow-hidden hover:border-[#cc0000]/50 transition-all duration-500 flex flex-col">
     <div className="relative h-64 overflow-hidden">
@@ -36,6 +42,16 @@ const EquipmentCard: React.FC<{
     
     <div className="p-10 flex-grow flex flex-col">
       <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic mb-4 group-hover:text-[#cc0000] transition-colors">{title}</h3>
+      
+      {updates && (
+        <div className="mb-6 flex items-start gap-2 bg-[#cc0000]/5 p-3 rounded-xl border border-[#cc0000]/20 animate-pulse">
+          <History className="w-3 h-3 text-[#cc0000] mt-0.5" />
+          <span className="text-[9px] font-black uppercase tracking-widest text-[#cc0000] leading-tight">
+            ACTUALIZACIÓN: {updates}
+          </span>
+        </div>
+      )}
+
       <p className="text-slate-400 font-medium text-sm leading-relaxed mb-8 flex-grow">
         {description}
       </p>
@@ -49,8 +65,20 @@ const EquipmentCard: React.FC<{
         ))}
       </div>
       
-      <button className="w-full py-4 bg-white/5 hover:bg-[#cc0000] text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 group/btn">
-        Ficha Técnica <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
+      <button 
+        onClick={() => { if(technicalSheetUrl) window.open(technicalSheetUrl, '_blank') }}
+        disabled={!technicalSheetUrl}
+        className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 group/btn ${
+          technicalSheetUrl 
+          ? 'bg-white text-black hover:bg-[#cc0000] hover:text-white' 
+          : 'bg-white/5 text-slate-700 cursor-not-allowed'
+        }`}
+      >
+        {technicalSheetUrl ? (
+          <>Ver Ficha Técnica <ExternalLink className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" /></>
+        ) : (
+          'Ficha No Disponible'
+        )}
       </button>
     </div>
   </div>
