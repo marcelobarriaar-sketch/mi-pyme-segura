@@ -43,6 +43,7 @@ interface DataContextType {
   deleteEquipment: (id: string) => void;
   updateEquipment: (id: string, e: TeamEquipment) => void;
   updateSettings: (s: GlobalSettings) => void;
+  importData: (data: { projects: Project[], equipment: TeamEquipment[], settings: GlobalSettings }) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -160,12 +161,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateSettings = (s: GlobalSettings) => setSettings(s);
 
+  const importData = (data: { projects: Project[], equipment: TeamEquipment[], settings: GlobalSettings }) => {
+    if (data.projects) setProjects(data.projects);
+    if (data.equipment) setEquipment(data.equipment);
+    if (data.settings) setSettings(data.settings);
+  };
+
   return (
     <DataContext.Provider value={{ 
       projects, equipment, settings, 
       addProject, deleteProject, updateProject,
       addEquipment, deleteEquipment, updateEquipment,
-      updateSettings
+      updateSettings, importData
     }}>
       {children}
     </DataContext.Provider>

@@ -1,11 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useData } from '../context/DataContext.tsx';
 import { 
   Lock, Plus, Trash2, Edit3, Save, X, 
   LayoutDashboard, Camera, Settings, 
   CheckCircle, Info, AlertCircle,
-  FileText, History, Video
+  FileText, History, Video, Download, Upload, Database
 } from 'lucide-react';
 
 export default function Admin() {
@@ -14,12 +14,13 @@ export default function Admin() {
   const { 
     projects, addProject, deleteProject, updateProject,
     equipment, addEquipment, deleteEquipment, updateEquipment,
-    settings, updateSettings 
+    settings, updateSettings, importData 
   } = useData();
   
   const [activeTab, setActiveTab] = useState<'projects' | 'equipment' | 'settings'>('projects');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Forms
   const [projForm, setProjForm] = useState({ title: '', type: '', location: '', description: '', result: '', image: '', iconType: 'ShieldCheck' });
@@ -72,6 +73,42 @@ export default function Admin() {
       addEquipment({ ...equipForm, specs: formattedSpecs });
     }
     setIsModalOpen(false);
+  };
+
+  // --- Funciones de Backup ---
+  const exportBackup = () => {
+    const data = { projects, equipment, settings };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `MPS_BACKUP_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const importBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+        if (confirm('¿Deseas restaurar esta copia de seguridad? Se sobreescribirán todos los datos actuales.')) {
+          importData(data);
+          alert('Datos restaurados correctamente.');
+          window.location.reload(); // Recargar para asegurar consistencia
+        }
+      } catch (err) {
+        alert('Error: El archivo no es un respaldo válido de Mi Pyme Segura.');
+      }
+    };
+    reader.readAsText(file);
   };
 
   if (!isAuthenticated) {
@@ -182,29 +219,76 @@ export default function Admin() {
 
         {/* --- TAB CONFIGURACIÓN --- */}
         {activeTab === 'settings' && (
-          <div className="max-w-2xl bg-white/5 p-10 rounded-[2.5rem] border border-white/5 animate-in slide-in-from-bottom-4">
-            <h2 className="text-2xl font-black text-white uppercase italic mb-8">Información Global</h2>
-            <div className="space-y-8">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Dirección Comercial</label>
-                <input value={settingsForm.address} onChange={e => setSettingsForm({...settingsForm, address: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-in slide-in-from-bottom-4">
+            {/* Formulario de Información Global */}
+            <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/5">
+              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3">
+                <Settings className="text-[#cc0000]" /> Información Global
+              </h2>
+              <div className="space-y-8">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Teléfono de Contacto</label>
-                  <input value={settingsForm.phone} onChange={e => setSettingsForm({...settingsForm, phone: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" />
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Dirección Comercial</label>
+                  <input value={settingsForm.address} onChange={e => setSettingsForm({...settingsForm, address: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Email Corporativo</label>
-                  <input value={settingsForm.email} onChange={e => setSettingsForm({...settingsForm, email: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Teléfono de Contacto</label>
+                    <input value={settingsForm.phone} onChange={e => setSettingsForm({...settingsForm, phone: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Email Corporativo</label>
+                    <input value={settingsForm.email} onChange={e => setSettingsForm({...settingsForm, email: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" />
+                  </div>
+                </div>
+                <button 
+                  onClick={() => { updateSettings(settingsForm); alert('Sincronizado con éxito'); }}
+                  className="w-full bg-[#cc0000] text-white py-5 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-red-700 transition-all shadow-lg shadow-red-900/40"
+                >
+                  <Save className="w-4 h-4" /> Guardar Cambios Globales
+                </button>
+              </div>
+            </div>
+
+            {/* Mantenimiento de Datos / Backup */}
+            <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/5 flex flex-col">
+              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3">
+                <Database className="text-[#cc0000]" /> Copia de Seguridad
+              </h2>
+              <p className="text-slate-400 text-sm font-medium leading-relaxed mb-10">
+                Resguarda toda la información de proyectos y equipos en un archivo físico para restaurar el sitio en cualquier momento o dispositivo.
+              </p>
+              
+              <div className="space-y-4 mt-auto">
+                <button 
+                  onClick={exportBackup}
+                  className="w-full bg-white text-black py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-[#cc0000] hover:text-white transition-all group"
+                >
+                  <Download className="w-4 h-4 group-hover:animate-bounce" /> Generar Punto de Restauración (.JSON)
+                </button>
+                
+                <div className="relative">
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept=".json"
+                    onChange={importBackup}
+                  />
+                  <button 
+                    onClick={handleImportClick}
+                    className="w-full bg-white/5 border border-white/10 text-slate-400 py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-white/10 hover:text-white transition-all"
+                  >
+                    <Upload className="w-4 h-4" /> Cargar Archivo de Respaldo
+                  </button>
                 </div>
               </div>
-              <button 
-                onClick={() => { updateSettings(settingsForm); alert('Sincronizado con éxito'); }}
-                className="w-full bg-[#cc0000] text-white py-5 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-red-700 transition-all shadow-lg shadow-red-900/40"
-              >
-                <Save className="w-4 h-4" /> Guardar Cambios Globales
-              </button>
+
+              <div className="mt-8 p-6 bg-[#cc0000]/10 rounded-2xl border border-[#cc0000]/20 flex gap-4 items-start">
+                <Info className="w-5 h-5 text-[#cc0000] shrink-0" />
+                <p className="text-[10px] font-bold text-[#cc0000] uppercase tracking-widest leading-relaxed">
+                  NOTA: Al importar un backup, se reemplazarán todos los datos actuales. Asegúrate de descargar tu versión actual antes de proceder.
+                </p>
+              </div>
             </div>
           </div>
         )}
