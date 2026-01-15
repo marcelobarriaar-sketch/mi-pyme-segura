@@ -6,11 +6,11 @@ import {
   LayoutDashboard, Camera, Settings, 
   CheckCircle, Info, AlertCircle,
   FileText, History, Video, Download, Upload, Database,
-  Users, Sun, Wifi, Cpu, Eye
+  Users, Sun, Wifi, Cpu, Eye, Shield, Zap, Satellite, Activity
 } from 'lucide-react';
 
 const valueIcons: Record<string, any> = {
-  Sun, Wifi, Cpu, Eye
+  Sun, Wifi, Cpu, Eye, Shield, Zap, Satellite, Activity
 };
 
 export default function Admin() {
@@ -19,7 +19,7 @@ export default function Admin() {
   const { 
     projects, addProject, deleteProject, updateProject,
     equipment, addEquipment, deleteEquipment, updateEquipment,
-    aboutValues, updateAboutValue,
+    aboutValues, updateAboutValue, addAboutValue, deleteAboutValue,
     settings, updateSettings, importData 
   } = useData();
   
@@ -31,6 +31,7 @@ export default function Admin() {
   // Forms
   const [projForm, setProjForm] = useState({ title: '', type: '', location: '', description: '', result: '', image: '', iconType: 'ShieldCheck' });
   const [equipForm, setEquipForm] = useState({ category: '', title: '', image: '', description: '', specs: '', technicalSheetUrl: '', videoUrl: '', updates: '' });
+  const [aboutForm, setAboutForm] = useState({ title: '', description: '', iconName: 'Shield' });
   const [settingsForm, setSettingsForm] = useState(settings);
 
   const handleAuth = (e: React.FormEvent) => {
@@ -43,6 +44,7 @@ export default function Admin() {
     setEditingId(null);
     setProjForm({ title: '', type: '', location: '', description: '', result: '', image: '', iconType: 'ShieldCheck' });
     setEquipForm({ category: '', title: '', image: '', description: '', specs: '', technicalSheetUrl: '', videoUrl: '', updates: '' });
+    setAboutForm({ title: '', description: '', iconName: 'Shield' });
     setIsModalOpen(true);
   };
 
@@ -50,7 +52,7 @@ export default function Admin() {
     setEditingId(item.id);
     if (activeTab === 'projects') {
       setProjForm({ ...item });
-    } else {
+    } else if (activeTab === 'equipment') {
       setEquipForm({ 
         ...item, 
         specs: item.specs.join(', '), 
@@ -58,6 +60,8 @@ export default function Admin() {
         videoUrl: item.videoUrl || '',
         updates: item.updates || '' 
       });
+    } else if (activeTab === 'about') {
+      setAboutForm({ ...item });
     }
     setIsModalOpen(true);
   };
@@ -81,14 +85,22 @@ export default function Admin() {
     setIsModalOpen(false);
   };
 
-  const handleValueUpdate = (id: string, field: 'title' | 'description', value: string) => {
+  const handleAboutSubmit = () => {
+    if (editingId) {
+      updateAboutValue(editingId, { ...aboutForm, id: editingId });
+    } else {
+      addAboutValue(aboutForm);
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleValueInstantUpdate = (id: string, field: 'title' | 'description', value: string) => {
     const original = aboutValues.find(v => v.id === id);
     if (original) {
       updateAboutValue(id, { ...original, [field]: value });
     }
   };
 
-  // --- Funciones de Backup ---
   const exportBackup = () => {
     const data = { projects, equipment, settings, aboutValues };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -178,45 +190,63 @@ export default function Admin() {
 
         {/* --- TAB NOSOTROS --- */}
         {activeTab === 'about' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in duration-300">
-            {aboutValues.map((val) => {
-              const IconComp = valueIcons[val.iconName] || Cpu;
-              return (
-                <div key={val.id} className="bg-white/5 border border-white/5 p-8 rounded-[2rem] hover:border-amber-400/30 transition-all flex flex-col gap-6">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-[#cc0000]/20 p-4 rounded-2xl">
-                      <IconComp className="w-6 h-6 text-amber-400" />
+          <div className="animate-in fade-in duration-300">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+              <button onClick={openAddModal} className="flex items-center gap-3 bg-white text-black px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all">
+                <Plus className="w-4 h-4" /> Nuevo Diferencial
+              </button>
+              <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest bg-white/5 px-4 py-2 rounded-lg">
+                Total Ítems: {aboutValues.length}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {aboutValues.map((val) => {
+                const IconComp = valueIcons[val.iconName] || Shield;
+                return (
+                  <div key={val.id} className="bg-white/5 border border-white/5 p-8 rounded-[2rem] hover:border-amber-400/30 transition-all flex flex-col gap-6 relative group">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-[#cc0000]/20 p-4 rounded-2xl">
+                          <IconComp className="w-6 h-6 text-amber-400" />
+                        </div>
+                        <div>
+                          <span className="text-amber-400 font-black text-[8px] uppercase tracking-widest">Bloque Activo</span>
+                          <h3 className="text-white font-black uppercase text-sm tracking-tight">{val.title}</h3>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => openEditModal(val)} className="p-3 text-slate-500 hover:text-white bg-white/5 rounded-xl transition-colors">
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => { if(confirm('¿Eliminar este diferencial?')) deleteAboutValue(val.id) }} className="p-3 text-slate-500 hover:text-red-500 bg-white/5 rounded-xl transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-amber-400 font-black text-[8px] uppercase tracking-widest">Bloque Tecnológico</span>
-                      <h3 className="text-white font-black uppercase text-sm tracking-tight">{val.title}</h3>
+                    
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Título</label>
+                        <input 
+                          value={val.title} 
+                          onChange={(e) => handleValueInstantUpdate(val.id, 'title', e.target.value)}
+                          className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold text-sm" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Descripción</label>
+                        <textarea 
+                          value={val.description} 
+                          onChange={(e) => handleValueInstantUpdate(val.id, 'description', e.target.value)}
+                          className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-slate-400 font-medium text-xs h-20" 
+                        />
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Título Visual</label>
-                      <input 
-                        value={val.title} 
-                        onChange={(e) => handleValueUpdate(val.id, 'title', e.target.value)}
-                        className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold text-sm" 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Descripción corta</label>
-                      <textarea 
-                        value={val.description} 
-                        onChange={(e) => handleValueUpdate(val.id, 'description', e.target.value)}
-                        className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-slate-400 font-medium text-xs h-20" 
-                      />
-                    </div>
-                  </div>
-                  <div className="mt-auto pt-4 border-t border-white/5 flex items-center gap-2 text-[10px] font-bold text-amber-400/40 uppercase tracking-widest">
-                    <CheckCircle className="w-3 h-3" /> Cambios guardados automáticamente
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -295,11 +325,11 @@ export default function Admin() {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl">
             <div className="w-full max-w-xl bg-[#020617] border border-white/10 p-10 rounded-[3rem] overflow-y-auto max-h-[90vh]">
               <div className="flex justify-between items-center mb-10 text-white font-black uppercase italic text-xl">
-                <span>{editingId ? 'Editar' : 'Nuevo'} {activeTab === 'projects' ? 'Proyecto' : 'Equipo'}</span>
+                <span>{editingId ? 'Editar' : 'Nuevo'} {activeTab === 'projects' ? 'Proyecto' : activeTab === 'about' ? 'Diferencial' : 'Equipo'}</span>
                 <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white"><X /></button>
               </div>
 
-              {activeTab === 'projects' ? (
+              {activeTab === 'projects' && (
                 <div className="space-y-6">
                   <input value={projForm.title} placeholder="Nombre Proyecto" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setProjForm({...projForm, title: e.target.value})} />
                   <input value={projForm.type} placeholder="Tipo Industria" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setProjForm({...projForm, type: e.target.value})} />
@@ -309,7 +339,9 @@ export default function Admin() {
                   <input value={projForm.image} placeholder="URL Imagen" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, image: e.target.value})} />
                   <button onClick={handleProjectSubmit} className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs">Guardar Proyecto</button>
                 </div>
-              ) : (
+              )}
+
+              {activeTab === 'equipment' && (
                 <div className="space-y-6">
                   <input value={equipForm.category} placeholder="Categoría" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setEquipForm({...equipForm, category: e.target.value})} />
                   <input value={equipForm.title} placeholder="Nombre Equipo" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setEquipForm({...equipForm, title: e.target.value})} />
@@ -317,6 +349,32 @@ export default function Admin() {
                   <textarea value={equipForm.description} placeholder="Descripción técnica" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setEquipForm({...equipForm, description: e.target.value})} />
                   <input value={equipForm.specs} placeholder="Specs (comas)" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setEquipForm({...equipForm, specs: e.target.value})} />
                   <button onClick={handleEquipmentSubmit} className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs">Guardar Equipo</button>
+                </div>
+              )}
+
+              {activeTab === 'about' && (
+                <div className="space-y-6">
+                  <input value={aboutForm.title} placeholder="Título del Diferencial" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setAboutForm({...aboutForm, title: e.target.value})} />
+                  <textarea value={aboutForm.description} placeholder="Descripción corta" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setAboutForm({...aboutForm, description: e.target.value})} />
+                  
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Seleccionar Icono</label>
+                    <div className="grid grid-cols-4 gap-3">
+                      {Object.keys(valueIcons).map(iconName => {
+                        const Icon = valueIcons[iconName];
+                        return (
+                          <button 
+                            key={iconName}
+                            onClick={() => setAboutForm({...aboutForm, iconName})}
+                            className={`p-4 rounded-xl border-2 transition-all flex items-center justify-center ${aboutForm.iconName === iconName ? 'border-amber-400 bg-amber-400/10 text-amber-400' : 'border-white/5 text-slate-600 hover:border-white/20'}`}
+                          >
+                            <Icon className="w-5 h-5" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <button onClick={handleAboutSubmit} className="w-full bg-amber-400 text-black py-5 rounded-2xl font-black uppercase tracking-widest text-xs">Sincronizar Diferencial</button>
                 </div>
               )}
             </div>

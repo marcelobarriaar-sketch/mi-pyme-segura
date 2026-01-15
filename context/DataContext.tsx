@@ -50,6 +50,8 @@ interface DataContextType {
   addEquipment: (e: Omit<TeamEquipment, 'id'>) => void;
   deleteEquipment: (id: string) => void;
   updateEquipment: (id: string, e: TeamEquipment) => void;
+  addAboutValue: (v: Omit<AboutValue, 'id'>) => void;
+  deleteAboutValue: (id: string) => void;
   updateAboutValue: (id: string, v: AboutValue) => void;
   updateSettings: (s: GlobalSettings) => void;
   importData: (data: { projects: Project[], equipment: TeamEquipment[], settings: GlobalSettings, aboutValues: AboutValue[] }) => void;
@@ -84,26 +86,6 @@ const initialProjects: Project[] = [
     result: "Cero intrusiones registradas desde la implementación del anillo perimetral.",
     image: "https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&q=80&w=1200",
     iconType: 'Target'
-  },
-  {
-    id: '3',
-    title: "Centro Logístico Retail",
-    type: "Comercio y Distribución",
-    location: "Puerto Montt, Región de Los Lagos",
-    description: "Instalación de analítica de video avanzada para prevención de mermas y control de inventarios en tiempo real para grandes superficies comerciales.",
-    result: "Optimización del flujo logístico y reducción drástica de pérdida desconocida.",
-    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200",
-    iconType: 'Building2'
-  },
-  {
-    id: '4',
-    title: "Complejo Acuícola Austral",
-    type: "Industria Salmonera",
-    location: "Canal de Chacao, Chile",
-    description: "Monitoreo remoto de balsas jaula mediante enlaces Starlink y cámaras térmicas de largo alcance, integradas para detectar actividad sospechosa en el mar.",
-    result: "Control total del perímetro marítimo desde la central de mando en tierra.",
-    image: "https://images.unsplash.com/photo-1516491617482-bc91d0c4d722?auto=format&fit=crop&q=80&w=1200",
-    iconType: 'ShieldCheck'
   }
 ];
 
@@ -115,29 +97,7 @@ const initialEquipment: TeamEquipment[] = [
     image: "https://images.unsplash.com/photo-1557597774-9d2739f85a76?auto=format&fit=crop&q=80&w=800",
     description: "Diseñadas para disuasión visual de largo alcance con visión nocturna infrarroja.",
     specs: ["Resolución 4K UHD", "Protección IP67 (Clima Extremo)", "Analítica Humano/Vehículo"],
-    technicalSheetUrl: "https://www.hikvision.com/en/products/IP-Products/Network-Cameras/Pro-Series-EasyIP-/ds-2cd2087g2-lu/",
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     updates: "Firmware v5.7.10 compatible con IA avanzada."
-  },
-  {
-    id: 'e2',
-    category: "Conectividad",
-    title: "Starlink Business Elite",
-    image: "https://images.unsplash.com/photo-1620121692029-d088224ddc74?auto=format&fit=crop&q=80&w=800",
-    description: "Internet satelital de alta velocidad para monitoreo remoto en zonas rurales extremas o marítimas.",
-    specs: ["Baja Latencia", "Cobertura Global", "Resiliencia Climática"],
-    technicalSheetUrl: "https://www.starlink.com/business",
-    videoUrl: "https://www.youtube.com/watch?v=h_Tf9U_zF7c",
-    updates: "Optimización de señal para zonas marítimas activada."
-  },
-  {
-    id: 'e3',
-    category: "Energía",
-    title: "Estación Solar Autónoma",
-    image: "https://images.unsplash.com/photo-1509391366360-fe5bb58583bb?auto=format&fit=crop&q=80&w=800",
-    description: "Suministro eléctrico ininterrumpido mediante paneles solares y baterías de litio para cámaras en campos.",
-    specs: ["Autonomía 48 hrs sin sol", "Control de Carga Inteligente", "Cero cables externos"],
-    updates: "Baterías de Litio Ferro-Fosfato de nueva generación."
   }
 ];
 
@@ -181,6 +141,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteEquipment = (id: string) => setEquipment(equipment.filter(e => e.id !== id));
   const updateEquipment = (id: string, e: TeamEquipment) => setEquipment(equipment.map(item => item.id === id ? e : item));
 
+  const addAboutValue = (v: Omit<AboutValue, 'id'>) => setAboutValues([...aboutValues, { ...v, id: Date.now().toString() }]);
+  const deleteAboutValue = (id: string) => setAboutValues(aboutValues.filter(v => v.id !== id));
   const updateAboutValue = (id: string, v: AboutValue) => setAboutValues(aboutValues.map(item => item.id === id ? v : item));
 
   const updateSettings = (s: GlobalSettings) => setSettings(s);
@@ -197,7 +159,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       projects, equipment, aboutValues, settings, 
       addProject, deleteProject, updateProject,
       addEquipment, deleteEquipment, updateEquipment,
-      updateAboutValue, updateSettings, importData
+      addAboutValue, deleteAboutValue, updateAboutValue, updateSettings, importData
     }}>
       {children}
     </DataContext.Provider>

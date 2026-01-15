@@ -9,27 +9,16 @@ import {
   Wifi, 
   Eye, 
   Cpu, 
-  ChevronRight,
+  Shield,
+  Zap,
+  Satellite,
+  Activity,
   Mountain
 } from 'lucide-react';
 
 const valueIcons: Record<string, any> = {
-  Sun, Wifi, Cpu, Eye
+  Sun, Wifi, Cpu, Eye, Shield, Zap, Satellite, Activity
 };
-
-const CommitmentCard = ({ title, desc }: { title: string, desc: string }) => (
-  <div className="bg-white/5 p-8 rounded-2xl border border-white/5 hover:border-[#cc0000]/30 transition-all">
-    <div className="flex items-start gap-4">
-      <div className="mt-1 bg-[#cc0000]/20 p-2 rounded-lg">
-        <ShieldCheck className="w-5 h-5 text-[#cc0000]" />
-      </div>
-      <div>
-        <h4 className="text-white font-black uppercase text-sm mb-2 tracking-tight">{title}</h4>
-        <p className="text-slate-400 text-xs font-medium leading-relaxed">{desc}</p>
-      </div>
-    </div>
-  </div>
-);
 
 export default function About() {
   const { aboutValues } = useData();
@@ -84,10 +73,14 @@ export default function About() {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {aboutValues.map((val, idx) => {
-                const IconComp = valueIcons[val.iconName] || Cpu;
+                const IconComp = valueIcons[val.iconName] || Shield;
+                // Efecto de escalonado dinámico para los primeros elementos
+                const isOffset = idx % 2 === 1 && idx < 6;
                 return (
-                  <div key={val.id} className={`bg-white/5 p-8 rounded-[2rem] border border-white/5 hover:border-amber-400/30 transition-all group h-full ${idx % 2 === 1 && idx === 1 ? 'mt-0' : idx % 2 === 1 ? 'mt-12' : ''}`}>
-                    <IconComp className="w-10 h-10 text-amber-400 mb-6 group-hover:scale-110 transition-transform" />
+                  <div key={val.id} className={`bg-white/5 p-8 rounded-[2rem] border border-white/5 hover:border-amber-400/30 transition-all group h-full ${isOffset ? 'mt-0 sm:mt-12' : ''}`}>
+                    <div className="bg-[#cc0000]/10 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#cc0000] transition-all">
+                      <IconComp className="w-8 h-8 text-amber-400 group-hover:text-white transition-colors" />
+                    </div>
                     <h3 className="text-white font-black uppercase tracking-tight mb-2">{val.title}</h3>
                     <p className="text-slate-500 text-sm leading-relaxed">{val.description}</p>
                   </div>
