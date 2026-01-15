@@ -10,57 +10,34 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #020617;
-            overflow-x: hidden;
-            margin: 0;
-            color: #f1f5f9;
-        }
-
-        @keyframes scanline {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(1000%); }
-        }
-
-        .scanline {
-            height: 100px;
-            background: linear-gradient(to bottom, transparent, rgba(204, 0, 0, 0.2), transparent);
-            position: absolute;
-            width: 100%;
-            z-index: 20;
-            pointer-events: none;
-            animation: scanline 8s linear infinite;
-        }
-
-        .hud-mono {
-            font-family: 'JetBrains Mono', monospace;
+        body { font-family: 'Inter', sans-serif; background-color: #020617; margin: 0; color: #f1f5f9; }
+        #error-display { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; 
+            background: #cc0000; color: white; padding: 15px; z-index: 9999; 
+            font-family: monospace; font-size: 12px; text-align: center;
         }
     </style>
-<script>
-    // Polyfill process.env para evitar 'ReferenceError: process is not defined' en el navegador
-    window.process = window.process || { 
-        env: { 
-            NODE_ENV: 'production',
-            API_KEY: '' 
-        } 
-    };
-    
-    // Capturador de errores global para ayudar a diagnosticar pantallas negras
-    window.onerror = function(message, source, lineno, colno, error) {
-        console.error('Fallo Crítico:', message, 'en', source, 'línea:', lineno);
-    };
-</script>
-<script type="importmap">
+    <script>
+        window.process = { env: { NODE_ENV: 'production', API_KEY: '' } };
+        window.onerror = function(msg, url, line) {
+            const display = document.getElementById('error-display');
+            if (display) {
+                display.style.display = 'block';
+                display.innerHTML = '<b>ERROR DE CARGA:</b> ' + msg + ' <br><small>' + url + ':' + line + '</small>';
+            }
+            return false;
+        };
+    </script>
+    <script type="importmap">
 {
   "imports": {
-    "@google/genai": "https://esm.sh/@google/genai@1.36.0",
-    "lucide-react": "https://esm.sh/lucide-react@0.462.0?external=react",
     "react": "https://esm.sh/react@19.0.0",
     "react-dom": "https://esm.sh/react-dom@19.0.0",
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "react-router-dom": "https://esm.sh/react-router-dom@7.0.0?external=react,react-dom",
     "react/jsx-runtime": "https://esm.sh/react@19.0.0/jsx-runtime",
+    "react-router-dom": "https://esm.sh/react-router-dom@7.0.0?external=react,react-dom",
+    "lucide-react": "https://esm.sh/lucide-react@0.462.0?external=react",
+    "@google/genai": "https://esm.sh/@google/genai@1.36.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/",
     "vite": "https://esm.sh/vite@^7.3.1",
@@ -70,6 +47,7 @@
 </script>
 </head>
 <body class="bg-[#020617]">
+    <div id="error-display"></div>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
 </body>
