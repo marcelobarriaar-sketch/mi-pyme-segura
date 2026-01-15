@@ -5,8 +5,13 @@ import {
   Lock, Plus, Trash2, Edit3, Save, X, 
   LayoutDashboard, Camera, Settings, 
   CheckCircle, Info, AlertCircle,
-  FileText, History, Video, Download, Upload, Database
+  FileText, History, Video, Download, Upload, Database,
+  Users, Sun, Wifi, Cpu, Eye
 } from 'lucide-react';
+
+const valueIcons: Record<string, any> = {
+  Sun, Wifi, Cpu, Eye
+};
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -14,10 +19,11 @@ export default function Admin() {
   const { 
     projects, addProject, deleteProject, updateProject,
     equipment, addEquipment, deleteEquipment, updateEquipment,
+    aboutValues, updateAboutValue,
     settings, updateSettings, importData 
   } = useData();
   
-  const [activeTab, setActiveTab] = useState<'projects' | 'equipment' | 'settings'>('projects');
+  const [activeTab, setActiveTab] = useState<'projects' | 'equipment' | 'about' | 'settings'>('projects');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -75,9 +81,16 @@ export default function Admin() {
     setIsModalOpen(false);
   };
 
+  const handleValueUpdate = (id: string, field: 'title' | 'description', value: string) => {
+    const original = aboutValues.find(v => v.id === id);
+    if (original) {
+      updateAboutValue(id, { ...original, [field]: value });
+    }
+  };
+
   // --- Funciones de Backup ---
   const exportBackup = () => {
-    const data = { projects, equipment, settings };
+    const data = { projects, equipment, settings, aboutValues };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -99,13 +112,13 @@ export default function Admin() {
     reader.onload = (event) => {
       try {
         const data = JSON.parse(event.target?.result as string);
-        if (confirm('¿Deseas restaurar esta copia de seguridad? Se sobreescribirán todos los datos actuales.')) {
+        if (confirm('¿Deseas restaurar esta copia de seguridad?')) {
           importData(data);
           alert('Datos restaurados correctamente.');
-          window.location.reload(); // Recargar para asegurar consistencia
+          window.location.reload();
         }
       } catch (err) {
-        alert('Error: El archivo no es un respaldo válido de Mi Pyme Segura.');
+        alert('Error: Archivo inválido.');
       }
     };
     reader.readAsText(file);
@@ -149,6 +162,7 @@ export default function Admin() {
             {[
               { id: 'projects', label: 'Proyectos', icon: LayoutDashboard },
               { id: 'equipment', label: 'Equipos', icon: Camera },
+              { id: 'about', label: 'Nosotros', icon: Users },
               { id: 'settings', label: 'Global', icon: Settings }
             ].map(tab => (
               <button
@@ -162,13 +176,56 @@ export default function Admin() {
           </div>
         </header>
 
+        {/* --- TAB NOSOTROS --- */}
+        {activeTab === 'about' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in duration-300">
+            {aboutValues.map((val) => {
+              const IconComp = valueIcons[val.iconName] || Cpu;
+              return (
+                <div key={val.id} className="bg-white/5 border border-white/5 p-8 rounded-[2rem] hover:border-amber-400/30 transition-all flex flex-col gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-[#cc0000]/20 p-4 rounded-2xl">
+                      <IconComp className="w-6 h-6 text-amber-400" />
+                    </div>
+                    <div>
+                      <span className="text-amber-400 font-black text-[8px] uppercase tracking-widest">Bloque Tecnológico</span>
+                      <h3 className="text-white font-black uppercase text-sm tracking-tight">{val.title}</h3>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Título Visual</label>
+                      <input 
+                        value={val.title} 
+                        onChange={(e) => handleValueUpdate(val.id, 'title', e.target.value)}
+                        className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold text-sm" 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Descripción corta</label>
+                      <textarea 
+                        value={val.description} 
+                        onChange={(e) => handleValueUpdate(val.id, 'description', e.target.value)}
+                        className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-slate-400 font-medium text-xs h-20" 
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-auto pt-4 border-t border-white/5 flex items-center gap-2 text-[10px] font-bold text-amber-400/40 uppercase tracking-widest">
+                    <CheckCircle className="w-3 h-3" /> Cambios guardados automáticamente
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         {/* --- TAB PROYECTOS --- */}
         {activeTab === 'projects' && (
           <div className="animate-in fade-in duration-300">
             <button onClick={openAddModal} className="mb-8 flex items-center gap-3 bg-white text-black px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-[#cc0000] hover:text-white transition-all">
               <Plus className="w-4 h-4" /> Nuevo Proyecto
             </button>
-            
             <div className="grid grid-cols-1 gap-4">
               {projects.map(proj => (
                 <div key={proj.id} className="bg-white/5 border border-white/5 p-6 rounded-2xl flex items-center gap-6 group hover:border-[#cc0000]/30 transition-all">
@@ -178,12 +235,8 @@ export default function Admin() {
                     <p className="text-slate-500 text-[10px] uppercase tracking-widest">{proj.location} • {proj.type}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => openEditModal(proj)} className="p-3 text-slate-500 hover:text-white transition-colors bg-white/5 rounded-lg">
-                      <Edit3 className="w-5 h-5" />
-                    </button>
-                    <button onClick={() => { if(confirm('¿Seguro que desea eliminar este proyecto?')) deleteProject(proj.id) }} className="p-3 text-slate-500 hover:text-red-500 transition-colors bg-white/5 rounded-lg">
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+                    <button onClick={() => openEditModal(proj)} className="p-3 text-slate-500 hover:text-white transition-colors bg-white/5 rounded-lg"><Edit3 className="w-5 h-5" /></button>
+                    <button onClick={() => { if(confirm('¿Seguro?')) deleteProject(proj.id) }} className="p-3 text-slate-500 hover:text-red-500 transition-colors bg-white/5 rounded-lg"><Trash2 className="w-5 h-5" /></button>
                   </div>
                 </div>
               ))}
@@ -197,7 +250,6 @@ export default function Admin() {
             <button onClick={openAddModal} className="mb-8 flex items-center gap-3 bg-white text-black px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-[#cc0000] hover:text-white transition-all">
               <Plus className="w-4 h-4" /> Registrar Hardware
             </button>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {equipment.map(item => (
                 <div key={item.id} className="bg-white/5 border border-white/5 p-6 rounded-2xl flex gap-6 items-start group hover:border-[#cc0000]/30 transition-all">
@@ -209,7 +261,7 @@ export default function Admin() {
                   </div>
                   <div className="flex flex-col gap-2">
                     <button onClick={() => openEditModal(item)} className="p-2 text-slate-500 hover:text-white bg-white/5 rounded-lg"><Edit3 className="w-4 h-4" /></button>
-                    <button onClick={() => { if(confirm('¿Eliminar equipo del catálogo?')) deleteEquipment(item.id) }} className="p-2 text-slate-500 hover:text-red-500 bg-white/5 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                    <button onClick={() => { if(confirm('¿Eliminar?')) deleteEquipment(item.id) }} className="p-2 text-slate-500 hover:text-red-500 bg-white/5 rounded-lg"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>
               ))}
@@ -220,174 +272,51 @@ export default function Admin() {
         {/* --- TAB CONFIGURACIÓN --- */}
         {activeTab === 'settings' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-in slide-in-from-bottom-4">
-            {/* Formulario de Información Global */}
             <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/5">
-              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3">
-                <Settings className="text-[#cc0000]" /> Información Global
-              </h2>
+              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Settings className="text-[#cc0000]" /> Global</h2>
               <div className="space-y-8">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Dirección Comercial</label>
-                  <input value={settingsForm.address} onChange={e => setSettingsForm({...settingsForm, address: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Teléfono de Contacto</label>
-                    <input value={settingsForm.phone} onChange={e => setSettingsForm({...settingsForm, phone: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Email Corporativo</label>
-                    <input value={settingsForm.email} onChange={e => setSettingsForm({...settingsForm, email: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" />
-                  </div>
-                </div>
-                <button 
-                  onClick={() => { updateSettings(settingsForm); alert('Sincronizado con éxito'); }}
-                  className="w-full bg-[#cc0000] text-white py-5 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-red-700 transition-all shadow-lg shadow-red-900/40"
-                >
-                  <Save className="w-4 h-4" /> Guardar Cambios Globales
-                </button>
+                <input value={settingsForm.address} onChange={e => setSettingsForm({...settingsForm, address: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" placeholder="Dirección" />
+                <input value={settingsForm.phone} onChange={e => setSettingsForm({...settingsForm, phone: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" placeholder="Teléfono" />
+                <input value={settingsForm.email} onChange={e => setSettingsForm({...settingsForm, email: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" placeholder="Email" />
+                <button onClick={() => { updateSettings(settingsForm); alert('Sincronizado'); }} className="w-full bg-[#cc0000] text-white py-5 rounded-xl font-black uppercase tracking-widest text-[10px]"><Save className="w-4 h-4 inline-block mr-2" /> Guardar Cambios</button>
               </div>
             </div>
-
-            {/* Mantenimiento de Datos / Backup */}
             <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/5 flex flex-col">
-              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3">
-                <Database className="text-[#cc0000]" /> Copia de Seguridad
-              </h2>
-              <p className="text-slate-400 text-sm font-medium leading-relaxed mb-10">
-                Resguarda toda la información de proyectos y equipos en un archivo físico para restaurar el sitio en cualquier momento o dispositivo.
-              </p>
-              
-              <div className="space-y-4 mt-auto">
-                <button 
-                  onClick={exportBackup}
-                  className="w-full bg-white text-black py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-[#cc0000] hover:text-white transition-all group"
-                >
-                  <Download className="w-4 h-4 group-hover:animate-bounce" /> Generar Punto de Restauración (.JSON)
-                </button>
-                
-                <div className="relative">
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    className="hidden" 
-                    accept=".json"
-                    onChange={importBackup}
-                  />
-                  <button 
-                    onClick={handleImportClick}
-                    className="w-full bg-white/5 border border-white/10 text-slate-400 py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-white/10 hover:text-white transition-all"
-                  >
-                    <Upload className="w-4 h-4" /> Cargar Archivo de Respaldo
-                  </button>
-                </div>
-              </div>
-
-              <div className="mt-8 p-6 bg-[#cc0000]/10 rounded-2xl border border-[#cc0000]/20 flex gap-4 items-start">
-                <Info className="w-5 h-5 text-[#cc0000] shrink-0" />
-                <p className="text-[10px] font-bold text-[#cc0000] uppercase tracking-widest leading-relaxed">
-                  NOTA: Al importar un backup, se reemplazarán todos los datos actuales. Asegúrate de descargar tu versión actual antes de proceder.
-                </p>
-              </div>
+              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Database className="text-[#cc0000]" /> Backup</h2>
+              <button onClick={exportBackup} className="w-full bg-white text-black py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] mb-4 group"><Download className="w-4 h-4 inline-block mr-2 group-hover:animate-bounce" /> Exportar .JSON</button>
+              <button onClick={handleImportClick} className="w-full bg-white/5 border border-white/10 text-slate-400 py-6 rounded-2xl font-black uppercase tracking-widest text-[10px]"><Upload className="w-4 h-4 inline-block mr-2" /> Importar Backup</button>
+              <input type="file" ref={fileInputRef} className="hidden" accept=".json" onChange={importBackup} />
             </div>
           </div>
         )}
 
-        {/* --- MODAL DE ADICIÓN / EDICIÓN --- */}
+        {/* --- MODALES --- */}
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl">
-            <div className="w-full max-w-xl bg-[#020617] border border-white/10 p-10 rounded-[3rem] shadow-2xl overflow-y-auto max-h-[90vh] animate-in zoom-in duration-300">
-              <div className="flex justify-between items-center mb-10">
-                <div>
-                  <span className="text-[#cc0000] font-black text-[10px] uppercase tracking-widest block mb-1">
-                    {editingId ? 'Modo Edición' : 'Nuevo Registro'}
-                  </span>
-                  <h3 className="text-2xl font-black text-white uppercase italic">
-                    {activeTab === 'projects' ? 'Proyecto' : 'Equipo Técnico'}
-                  </h3>
-                </div>
-                <button onClick={() => setIsModalOpen(false)} className="bg-white/5 p-3 rounded-2xl text-slate-500 hover:text-white transition-all"><X /></button>
+            <div className="w-full max-w-xl bg-[#020617] border border-white/10 p-10 rounded-[3rem] overflow-y-auto max-h-[90vh]">
+              <div className="flex justify-between items-center mb-10 text-white font-black uppercase italic text-xl">
+                <span>{editingId ? 'Editar' : 'Nuevo'} {activeTab === 'projects' ? 'Proyecto' : 'Equipo'}</span>
+                <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white"><X /></button>
               </div>
 
               {activeTab === 'projects' ? (
                 <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nombre del Proyecto</label>
-                    <input value={projForm.title} placeholder="Ej. Sun & Breve Gardens" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setProjForm({...projForm, title: e.target.value})} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Tipo de Industria</label>
-                      <input value={projForm.type} placeholder="Ej. Agrícola" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setProjForm({...projForm, type: e.target.value})} />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Ubicación</label>
-                      <input value={projForm.location} placeholder="Ej. Osorno, Chile" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setProjForm({...projForm, location: e.target.value})} />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Descripción de la Solución</label>
-                    <textarea value={projForm.description} placeholder="Detalles técnicos..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24 font-medium" onChange={e => setProjForm({...projForm, description: e.target.value})} />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Métrica / Resultado</label>
-                    <input value={projForm.result} placeholder="Ej. Reducción de incidentes en 100%" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setProjForm({...projForm, result: e.target.value})} />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">URL de Imagen</label>
-                    <input value={projForm.image} placeholder="https://..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, image: e.target.value})} />
-                  </div>
-                  <button onClick={handleProjectSubmit} className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-lg shadow-red-900/40 hover:bg-red-700 transition-all">
-                    {editingId ? <><Save className="w-4 h-4"/> Actualizar Registro</> : <><Plus className="w-4 h-4"/> Publicar Proyecto</>}
-                  </button>
+                  <input value={projForm.title} placeholder="Nombre Proyecto" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setProjForm({...projForm, title: e.target.value})} />
+                  <input value={projForm.type} placeholder="Tipo Industria" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setProjForm({...projForm, type: e.target.value})} />
+                  <input value={projForm.location} placeholder="Ubicación" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setProjForm({...projForm, location: e.target.value})} />
+                  <textarea value={projForm.description} placeholder="Descripción" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setProjForm({...projForm, description: e.target.value})} />
+                  <input value={projForm.result} placeholder="Métrica / Resultado" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setProjForm({...projForm, result: e.target.value})} />
+                  <input value={projForm.image} placeholder="URL Imagen" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, image: e.target.value})} />
+                  <button onClick={handleProjectSubmit} className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs">Guardar Proyecto</button>
                 </div>
               ) : (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Categoría</label>
-                      <input value={equipForm.category} placeholder="CCTV, Energía..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setEquipForm({...equipForm, category: e.target.value})} />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nombre Equipo</label>
-                      <input value={equipForm.title} placeholder="Nombre del modelo" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setEquipForm({...equipForm, title: e.target.value})} />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">URL Imagen</label>
-                    <input value={equipForm.image} placeholder="https://..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, image: e.target.value})} />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                        <FileText className="w-3 h-3 text-[#cc0000]" /> Enlace Ficha Técnica
-                      </label>
-                      <input value={equipForm.technicalSheetUrl} placeholder="PDF/WEB URL" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, technicalSheetUrl: e.target.value})} />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                        <Video className="w-3 h-3 text-[#cc0000]" /> Enlace Video Demostración
-                      </label>
-                      <input value={equipForm.videoUrl} placeholder="Youtube/Vimeo URL" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, videoUrl: e.target.value})} />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                      <History className="w-3 h-3 text-[#cc0000]" /> Notas de Actualización / Versión
-                    </label>
-                    <textarea value={equipForm.updates} placeholder="Ej. Firmware v2.0: Soporta visión nocturna a color..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-20 font-medium" onChange={e => setEquipForm({...equipForm, updates: e.target.value})} />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Descripción Técnica</label>
-                    <textarea value={equipForm.description} placeholder="Características principales..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-20 font-medium" onChange={e => setEquipForm({...equipForm, description: e.target.value})} />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Especificaciones (Separar por comas)</label>
-                    <input value={equipForm.specs} placeholder="Resolución 4K, IP67, Zoom 40x..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setEquipForm({...equipForm, specs: e.target.value})} />
-                  </div>
-                  <button onClick={handleEquipmentSubmit} className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-lg shadow-red-900/40 hover:bg-red-700 transition-all">
-                    {editingId ? <><Save className="w-4 h-4"/> Sincronizar Hardware</> : <><Plus className="w-4 h-4"/> Registrar en Catálogo</>}
-                  </button>
+                  <input value={equipForm.category} placeholder="Categoría" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setEquipForm({...equipForm, category: e.target.value})} />
+                  <input value={equipForm.title} placeholder="Nombre Equipo" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setEquipForm({...equipForm, title: e.target.value})} />
+                  <input value={equipForm.image} placeholder="URL Imagen" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, image: e.target.value})} />
+                  <textarea value={equipForm.description} placeholder="Descripción técnica" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setEquipForm({...equipForm, description: e.target.value})} />
+                  <input value={equipForm.specs} placeholder="Specs (comas)" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" onChange={e => setEquipForm({...equipForm, specs: e.target.value})} />
+                  <button onClick={handleEquipmentSubmit} className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs">Guardar Equipo</button>
                 </div>
               )}
             </div>

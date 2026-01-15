@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useData } from '../context/DataContext.tsx';
 import { 
   Target, 
   Rocket, 
@@ -8,17 +9,13 @@ import {
   Wifi, 
   Eye, 
   Cpu, 
-  MessageSquare,
   ChevronRight,
   Mountain
 } from 'lucide-react';
 
-const ServiceItem = ({ text }: { text: string }) => (
-  <div className="flex items-center gap-3 group">
-    <div className="w-2 h-2 rounded-full bg-[#cc0000] group-hover:scale-150 transition-transform"></div>
-    <span className="text-slate-300 font-bold uppercase tracking-widest text-xs group-hover:text-white transition-colors">{text}</span>
-  </div>
-);
+const valueIcons: Record<string, any> = {
+  Sun, Wifi, Cpu, Eye
+};
 
 const CommitmentCard = ({ title, desc }: { title: string, desc: string }) => (
   <div className="bg-white/5 p-8 rounded-2xl border border-white/5 hover:border-[#cc0000]/30 transition-all">
@@ -35,6 +32,8 @@ const CommitmentCard = ({ title, desc }: { title: string, desc: string }) => (
 );
 
 export default function About() {
+  const { aboutValues } = useData();
+
   return (
     <div className="animate-in fade-in duration-700 bg-[#020617]">
       {/* Hero Section - Origen y Trayectoria */}
@@ -50,7 +49,7 @@ export default function About() {
         
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="max-w-4xl">
-            <span className="text-[#cc0000] font-black uppercase tracking-[0.4em] text-[10px] mb-6 block">Sobre Mi Pyme Segura</span>
+            <span className="text-amber-400 font-black uppercase tracking-[0.4em] text-[10px] mb-6 block">Sobre Mi Pyme Segura</span>
             <h1 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter leading-[0.85] mb-10 italic">
               PROTEGER LO QUE <br/>
               <span className="text-[#cc0000]">MÁS IMPORTA</span>
@@ -80,37 +79,20 @@ export default function About() {
                 <p className="bg-white/5 p-8 rounded-3xl border-l-4 border-[#cc0000] italic">
                   "No trabajamos solo en ciudad. Llegamos a sectores rurales y apartados, instalando cámaras con energías renovables, enlaces inalámbricos y sistemas autónomos que aseguran continuidad incluso en condiciones difíciles."
                 </p>
-                <p>
-                  Ese es nuestro sello: adaptarnos al cliente, al territorio y a la necesidad real.
-                </p>
               </div>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-6">
-                <div className="bg-white/5 p-8 rounded-[2rem] border border-white/5 hover:border-[#cc0000]/30 transition-all group h-full">
-                  <Sun className="w-10 h-10 text-[#cc0000] mb-6 group-hover:scale-110 transition-transform" />
-                  <h3 className="text-white font-black uppercase tracking-tight mb-2">Energía Solar</h3>
-                  <p className="text-slate-500 text-sm">Sistemas autónomos para zonas sin red eléctrica.</p>
-                </div>
-                <div className="bg-white/5 p-8 rounded-[2rem] border border-white/5 hover:border-[#cc0000]/30 transition-all group h-full">
-                  <Wifi className="w-10 h-10 text-[#cc0000] mb-6 group-hover:scale-110 transition-transform" />
-                  <h3 className="text-white font-black uppercase tracking-tight mb-2">Enlaces de Larga Distancia</h3>
-                  <p className="text-slate-500 text-sm">Conectividad robusta en terrenos complejos.</p>
-                </div>
-              </div>
-              <div className="space-y-6 mt-12">
-                <div className="bg-white/5 p-8 rounded-[2rem] border border-white/5 hover:border-[#cc0000]/30 transition-all group h-full">
-                  <Cpu className="w-10 h-10 text-[#cc0000] mb-6 group-hover:scale-110 transition-transform" />
-                  <h3 className="text-white font-black uppercase tracking-tight mb-2">IA Táctica</h3>
-                  <p className="text-slate-500 text-sm">Análisis inteligente para prevención real.</p>
-                </div>
-                <div className="bg-white/5 p-8 rounded-[2rem] border border-white/5 hover:border-[#cc0000]/30 transition-all group h-full">
-                  <Eye className="w-10 h-10 text-[#cc0000] mb-6 group-hover:scale-110 transition-transform" />
-                  <h3 className="text-white font-black uppercase tracking-tight mb-2">Monitoreo 24/7</h3>
-                  <p className="text-slate-500 text-sm">Visualización remota desde cualquier lugar.</p>
-                </div>
-              </div>
+              {aboutValues.map((val, idx) => {
+                const IconComp = valueIcons[val.iconName] || Cpu;
+                return (
+                  <div key={val.id} className={`bg-white/5 p-8 rounded-[2rem] border border-white/5 hover:border-amber-400/30 transition-all group h-full ${idx % 2 === 1 && idx === 1 ? 'mt-0' : idx % 2 === 1 ? 'mt-12' : ''}`}>
+                    <IconComp className="w-10 h-10 text-amber-400 mb-6 group-hover:scale-110 transition-transform" />
+                    <h3 className="text-white font-black uppercase tracking-tight mb-2">{val.title}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed">{val.description}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -132,7 +114,7 @@ export default function About() {
                   <h3 className="text-3xl font-black text-white uppercase tracking-tighter italic">Nuestra Misión</h3>
                 </div>
                 <p className="text-xl text-slate-300 font-medium leading-relaxed">
-                  Proteger a personas, hogares y organizaciones mediante soluciones de seguridad inteligentes, integrando tecnología de vanguardia e inteligencia artificial, adaptadas a cada contexto y necesidad, contribuyendo a generar entornos más seguros, confiables y sostenibles en el sur de Chile y sectores rurales del país.
+                  Proteger a personas, hogares y organizaciones mediante soluciones de seguridad inteligentes, integrando tecnología de vanguardia e inteligencia artificial.
                 </p>
               </div>
             </div>
@@ -149,56 +131,10 @@ export default function About() {
                   <h3 className="text-3xl font-black text-white uppercase tracking-tighter italic">Nuestra Visión</h3>
                 </div>
                 <p className="text-xl text-slate-300 font-medium leading-relaxed">
-                  Ser referentes en el sur de Chile en soluciones de seguridad inteligentes, destacando por nuestra innovación, uso de energías renovables, capacidad de operación en zonas apartadas y un servicio cercano que permita a las comunidades vivir y trabajar con mayor tranquilidad.
+                  Ser referentes en el sur de Chile en soluciones de seguridad inteligentes, destacando por nuestra innovación y uso de energías renovables.
                 </p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Compromiso */}
-      <section className="py-40 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-20 items-center">
-            <div className="w-full lg:w-1/3">
-              <span className="text-[#cc0000] font-black uppercase tracking-[0.4em] text-[10px] mb-6 block">Nuestro Pacto</span>
-              <h2 className="text-5xl font-black text-white uppercase tracking-tighter leading-none italic mb-8">Nuestro <br/>Compromiso <br/><span className="text-[#cc0000]">Contigo</span></h2>
-              <p className="text-slate-400 font-medium text-lg leading-relaxed">
-                Seguridad real, tecnología de punta y una atención que entiende tu contexto. Eso es Mi Pyme Segura.
-              </p>
-            </div>
-            
-            <div className="w-full lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-8">
-              <CommitmentCard 
-                title="Te escuchamos primero" 
-                desc="Antes de ofrecerte cualquier equipo, analizamos tu realidad y riesgos específicos." 
-              />
-              <CommitmentCard 
-                title="Diseño de Precisión" 
-                desc="Creamos la solución técnica exacta para tu caso, evitando gastos innecesarios." 
-              />
-              <CommitmentCard 
-                title="Sin letra chica" 
-                desc="Te explicamos todo en lenguaje simple para que tengas el control total de tu sistema." 
-              />
-              <CommitmentCard 
-                title="Acompañamiento Total" 
-                desc="Estamos contigo antes, durante y después de la instalación. Nunca te dejamos solo." 
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Final */}
-      <section className="bg-[#cc0000] py-32 text-center relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 relative z-10">
-          <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter italic mb-10">¿Listo para blindar tu inversión?</h2>
-          <div className="flex flex-col sm:flex-row justify-center gap-6">
-            <button className="bg-white text-[#cc0000] px-12 py-6 rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-105 transition-transform flex items-center justify-center gap-3 shadow-2xl">
-              Agendar Auditoría Técnica <ChevronRight className="w-5 h-5" />
-            </button>
           </div>
         </div>
       </section>

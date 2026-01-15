@@ -24,6 +24,13 @@ interface TeamEquipment {
   updates?: string;
 }
 
+interface AboutValue {
+  id: string;
+  title: string;
+  description: string;
+  iconName: string;
+}
+
 interface GlobalSettings {
   phone: string;
   email: string;
@@ -35,6 +42,7 @@ interface GlobalSettings {
 interface DataContextType {
   projects: Project[];
   equipment: TeamEquipment[];
+  aboutValues: AboutValue[];
   settings: GlobalSettings;
   addProject: (p: Omit<Project, 'id'>) => void;
   deleteProject: (id: string) => void;
@@ -42,11 +50,19 @@ interface DataContextType {
   addEquipment: (e: Omit<TeamEquipment, 'id'>) => void;
   deleteEquipment: (id: string) => void;
   updateEquipment: (id: string, e: TeamEquipment) => void;
+  updateAboutValue: (id: string, v: AboutValue) => void;
   updateSettings: (s: GlobalSettings) => void;
-  importData: (data: { projects: Project[], equipment: TeamEquipment[], settings: GlobalSettings }) => void;
+  importData: (data: { projects: Project[], equipment: TeamEquipment[], settings: GlobalSettings, aboutValues: AboutValue[] }) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
+
+const initialAboutValues: AboutValue[] = [
+  { id: 'solar', title: 'Energía Solar', description: 'Sistemas autónomos para zonas sin red eléctrica.', iconName: 'Sun' },
+  { id: 'enlaces', title: 'Enlaces de Larga Distancia', description: 'Conectividad robusta en terrenos complejos.', iconName: 'Wifi' },
+  { id: 'ia', title: 'IA Táctica', description: 'Análisis inteligente para prevención real.', iconName: 'Cpu' },
+  { id: 'monitoreo', title: 'Monitoreo 24/7', description: 'Visualización remota desde cualquier lugar.', iconName: 'Eye' }
+];
 
 const initialProjects: Project[] = [
   {
@@ -142,6 +158,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return saved ? JSON.parse(saved) : initialEquipment;
   });
 
+  const [aboutValues, setAboutValues] = useState<AboutValue[]>(() => {
+    const saved = localStorage.getItem('mps_about_values');
+    return saved ? JSON.parse(saved) : initialAboutValues;
+  });
+
   const [settings, setSettings] = useState<GlobalSettings>(() => {
     const saved = localStorage.getItem('mps_settings');
     return saved ? JSON.parse(saved) : initialSettings;
@@ -149,6 +170,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => localStorage.setItem('mps_projects', JSON.stringify(projects)), [projects]);
   useEffect(() => localStorage.setItem('mps_equipment', JSON.stringify(equipment)), [equipment]);
+  useEffect(() => localStorage.setItem('mps_about_values', JSON.stringify(aboutValues)), [aboutValues]);
   useEffect(() => localStorage.setItem('mps_settings', JSON.stringify(settings)), [settings]);
 
   const addProject = (p: Omit<Project, 'id'>) => setProjects([...projects, { ...p, id: Date.now().toString() }]);
@@ -159,20 +181,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteEquipment = (id: string) => setEquipment(equipment.filter(e => e.id !== id));
   const updateEquipment = (id: string, e: TeamEquipment) => setEquipment(equipment.map(item => item.id === id ? e : item));
 
+  const updateAboutValue = (id: string, v: AboutValue) => setAboutValues(aboutValues.map(item => item.id === id ? v : item));
+
   const updateSettings = (s: GlobalSettings) => setSettings(s);
 
-  const importData = (data: { projects: Project[], equipment: TeamEquipment[], settings: GlobalSettings }) => {
+  const importData = (data: { projects: Project[], equipment: TeamEquipment[], settings: GlobalSettings, aboutValues: AboutValue[] }) => {
     if (data.projects) setProjects(data.projects);
     if (data.equipment) setEquipment(data.equipment);
     if (data.settings) setSettings(data.settings);
+    if (data.aboutValues) setAboutValues(data.aboutValues);
   };
 
   return (
     <DataContext.Provider value={{ 
-      projects, equipment, settings, 
+      projects, equipment, aboutValues, settings, 
       addProject, deleteProject, updateProject,
       addEquipment, deleteEquipment, updateEquipment,
-      updateSettings, importData
+      updateAboutValue, updateSettings, importData
     }}>
       {children}
     </DataContext.Provider>
