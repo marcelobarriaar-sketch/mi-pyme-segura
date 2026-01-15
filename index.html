@@ -15,31 +15,12 @@
             background-color: #020617;
             overflow-x: hidden;
             margin: 0;
+            color: #f1f5f9;
         }
 
         @keyframes scanline {
             0% { transform: translateY(-100%); }
             100% { transform: translateY(1000%); }
-        }
-
-        @keyframes tracking-move {
-            0%, 100% { transform: translate(0, 0); }
-            25% { transform: translate(20px, -15px); }
-            50% { transform: translate(-10px, 30px); }
-            75% { transform: translate(15px, 10px); }
-        }
-
-        @keyframes flicker {
-            0% { opacity: 0.8; }
-            5% { opacity: 0.2; }
-            10% { opacity: 0.8; }
-            100% { opacity: 0.8; }
-        }
-
-        @keyframes zoom-pan {
-            0% { transform: scale(1) translate(0, 0); }
-            50% { transform: scale(1.1) translate(-1%, -1%); }
-            100% { transform: scale(1) translate(0, 0); }
         }
 
         .scanline {
@@ -55,14 +36,20 @@
         .hud-mono {
             font-family: 'JetBrains Mono', monospace;
         }
-
-        .bg-surveillance {
-            animation: zoom-pan 20s ease-in-out infinite;
-        }
     </style>
 <script>
-    // Polyfill process.env para compatibilidad con el SDK de Gemini en el navegador
-    window.process = window.process || { env: { NODE_ENV: 'production' } };
+    // Polyfill process.env para evitar 'ReferenceError: process is not defined' en el navegador
+    window.process = window.process || { 
+        env: { 
+            NODE_ENV: 'production',
+            API_KEY: '' 
+        } 
+    };
+    
+    // Capturador de errores global para ayudar a diagnosticar pantallas negras
+    window.onerror = function(message, source, lineno, colno, error) {
+        console.error('Fallo Crítico:', message, 'en', source, 'línea:', lineno);
+    };
 </script>
 <script type="importmap">
 {
@@ -82,7 +69,7 @@
 }
 </script>
 </head>
-<body class="bg-[#020617] text-slate-100">
+<body class="bg-[#020617]">
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
 </body>
