@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useData } from '../context/DataContext';
+import { useData } from '../context/DataContext.tsx';
 import { Lock, Plus, Trash2, Edit3, Save, X, Image as ImageIcon, CheckCircle } from 'lucide-react';
 
 export default function Admin() {

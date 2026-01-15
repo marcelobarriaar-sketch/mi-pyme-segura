@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useData } from '../context/DataContext';
+import { useData } from '../context/DataContext.tsx';
 import { MapPin, Target, Building2, ShieldCheck, HeartPulse, GraduationCap, CheckCircle2 } from 'lucide-react';
 
 const icons = {

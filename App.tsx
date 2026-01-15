@@ -9,14 +9,14 @@ import {
   Phone,
   Settings
 } from 'lucide-react';
-import { DataProvider } from './context/DataContext';
-import Home from './pages/Home';
-import About from './pages/About';
-import Teams from './pages/Teams';
-import PastProjects from './pages/PastProjects';
-import ProjectBuilder from './pages/ProjectBuilder';
-import Contact from './pages/Contact';
-import Admin from './pages/Admin';
+import { DataProvider } from './context/DataContext.tsx';
+import Home from './pages/Home.tsx';
+import About from './pages/About.tsx';
+import Teams from './pages/Teams.tsx';
+import PastProjects from './pages/PastProjects.tsx';
+import ProjectBuilder from './pages/ProjectBuilder.tsx';
+import Contact from './pages/Contact.tsx';
+import Admin from './pages/Admin.tsx';
 
 const MiPymeSeguraLogo = ({ className = "w-10 h-10" }: { className?: string }) => (
   <div className={`${className} bg-[#cc0000] rounded-xl flex items-center justify-center shadow-lg shadow-red-900/20 flex-shrink-0 group-hover:scale-110 transition-transform duration-300 p-1`}>

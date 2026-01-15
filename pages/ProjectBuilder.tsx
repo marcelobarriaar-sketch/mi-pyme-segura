@@ -15,8 +15,8 @@ import {
   FileText,
   ShieldCheck
 } from 'lucide-react';
-import { generateSecurityProposal } from '../services/geminiService';
-import { ProjectConfig, SecurityRecommendation } from '../types';
+import { generateSecurityProposal } from '../services/geminiService.ts';
+import { ProjectConfig, SecurityRecommendation } from '../types.ts';
 
 const steps = [
   { id: 1, title: 'Sector' },

@@ -1,8 +1,7 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { ProjectConfig, SecurityRecommendation } from "../types";
+import { ProjectConfig, SecurityRecommendation } from "../types.ts";
 
-// Always use the required initialization format for the Google GenAI SDK and use process.env.API_KEY exclusively
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const generateSecurityProposal = async (config: ProjectConfig): Promise<SecurityRecommendation> => {
@@ -49,7 +48,6 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
     }
   });
 
-  // Directly access the .text property from GenerateContentResponse
   const resultText = response.text || "{}";
   return JSON.parse(resultText) as SecurityRecommendation;
 };
