@@ -9,7 +9,7 @@ interface Project {
   description: string;
   result: string;
   image: string;
-  iconType: 'HeartPulse' | 'Building2' | 'GraduationCap' | 'ShieldCheck' | 'Target';
+  iconType: string;
 }
 
 interface TeamEquipment {
@@ -21,51 +21,66 @@ interface TeamEquipment {
   specs: string[];
 }
 
+interface GlobalSettings {
+  phone: string;
+  email: string;
+  address: string;
+  instagram?: string;
+  facebook?: string;
+}
+
 interface DataContextType {
   projects: Project[];
   equipment: TeamEquipment[];
+  settings: GlobalSettings;
   addProject: (p: Omit<Project, 'id'>) => void;
-  updateProject: (id: string, p: Project) => void;
   deleteProject: (id: string) => void;
+  updateProject: (id: string, p: Project) => void;
+  addEquipment: (e: Omit<TeamEquipment, 'id'>) => void;
+  deleteEquipment: (id: string) => void;
   updateEquipment: (id: string, e: TeamEquipment) => void;
+  updateSettings: (s: GlobalSettings) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-// Datos iniciales para que el sitio no nazca vacío
 const initialProjects: Project[] = [
   {
     id: '1',
-    title: "Red de salud pública y privada",
-    type: "Salud e Infraestructura Crítica",
-    location: "Fresia, Llanquihue, Frutillar, Maullín, Purranque",
-    description: "Implementación integral de sistemas de seguridad y monitoreo centralizado para los Hospitales de Fresia, Llanquihue, Frutillar y Maullín.",
-    result: "Blindaje operativo 24/7 en infraestructuras de salud.",
+    title: "Red de salud pública",
+    type: "Salud e Infraestructura",
+    location: "Fresia, Llanquihue",
+    description: "Monitoreo centralizado para hospitales regionales.",
+    result: "Blindaje operativo 24/7.",
     image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=1200",
     iconType: 'HeartPulse'
-  },
-  {
-    id: '2',
-    title: "Estamentos Públicos y Privados",
-    type: "Gobierno y Gestión Comunitaria",
-    location: "Fresia, Región de Los Lagos",
-    description: "Despliegue de vigilancia urbana estratégica para la Ilustre Municipalidad de Fresia y sedes vecinales.",
-    result: "Aumento significativo en la protección comunitaria.",
-    image: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&q=80&w=1200",
-    iconType: 'Building2'
   }
 ];
 
 const initialEquipment: TeamEquipment[] = [
   {
     id: 'e1',
-    category: "CCTV - Vídeo Inteligente",
+    category: "CCTV",
     title: "Cámaras Fijas tipo Bala",
     image: "https://images.unsplash.com/photo-1557597774-9d2739f85a76?auto=format&fit=crop&q=80&w=800",
-    description: "Diseñadas para disuasión visual y monitoreo perimetral de largo alcance.",
-    specs: ["Resolución 4K/8K", "Protección IP67", "Analítica de Intrusión"]
+    description: "Diseñadas para disuasión visual de largo alcance.",
+    specs: ["Resolución 4K", "Protección IP67"]
+  },
+  {
+    id: 'e2',
+    category: "Conectividad",
+    title: "Starlink Business",
+    image: "https://images.unsplash.com/photo-1620121692029-d088224ddc74?auto=format&fit=crop&q=80&w=800",
+    description: "Internet satelital para zonas rurales extremas.",
+    specs: ["Baja Latencia", "Cobertura Global"]
   }
 ];
+
+const initialSettings: GlobalSettings = {
+  phone: "+56 9 3035 7842",
+  email: "contacto@mipymesegura.cl",
+  address: "San Martín 267, Fresia, Chile"
+};
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [projects, setProjects] = useState<Project[]>(() => {
@@ -78,32 +93,32 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return saved ? JSON.parse(saved) : initialEquipment;
   });
 
-  useEffect(() => {
-    localStorage.setItem('mps_projects', JSON.stringify(projects));
-  }, [projects]);
+  const [settings, setSettings] = useState<GlobalSettings>(() => {
+    const saved = localStorage.getItem('mps_settings');
+    return saved ? JSON.parse(saved) : initialSettings;
+  });
 
-  useEffect(() => {
-    localStorage.setItem('mps_equipment', JSON.stringify(equipment));
-  }, [equipment]);
+  useEffect(() => localStorage.setItem('mps_projects', JSON.stringify(projects)), [projects]);
+  useEffect(() => localStorage.setItem('mps_equipment', JSON.stringify(equipment)), [equipment]);
+  useEffect(() => localStorage.setItem('mps_settings', JSON.stringify(settings)), [settings]);
 
-  const addProject = (p: Omit<Project, 'id'>) => {
-    setProjects([...projects, { ...p, id: Date.now().toString() }]);
-  };
+  const addProject = (p: Omit<Project, 'id'>) => setProjects([...projects, { ...p, id: Date.now().toString() }]);
+  const deleteProject = (id: string) => setProjects(projects.filter(p => p.id !== id));
+  const updateProject = (id: string, p: Project) => setProjects(projects.map(item => item.id === id ? p : item));
 
-  const updateProject = (id: string, p: Project) => {
-    setProjects(projects.map(proj => proj.id === id ? p : proj));
-  };
+  const addEquipment = (e: Omit<TeamEquipment, 'id'>) => setEquipment([...equipment, { ...e, id: Date.now().toString() }]);
+  const deleteEquipment = (id: string) => setEquipment(equipment.filter(e => e.id !== id));
+  const updateEquipment = (id: string, e: TeamEquipment) => setEquipment(equipment.map(item => item.id === id ? e : item));
 
-  const deleteProject = (id: string) => {
-    setProjects(projects.filter(proj => proj.id !== id));
-  };
-
-  const updateEquipment = (id: string, e: TeamEquipment) => {
-    setEquipment(equipment.map(item => item.id === id ? e : item));
-  };
+  const updateSettings = (s: GlobalSettings) => setSettings(s);
 
   return (
-    <DataContext.Provider value={{ projects, equipment, addProject, updateProject, deleteProject, updateEquipment }}>
+    <DataContext.Provider value={{ 
+      projects, equipment, settings, 
+      addProject, deleteProject, updateProject,
+      addEquipment, deleteEquipment, updateEquipment,
+      updateSettings
+    }}>
       {children}
     </DataContext.Provider>
   );

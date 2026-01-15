@@ -7,9 +7,9 @@ import {
   MapPin,
   Mail,
   Phone,
-  Settings
+  Settings as SettingsIcon
 } from 'lucide-react';
-import { DataProvider } from './context/DataContext.tsx';
+import { DataProvider, useData } from './context/DataContext.tsx';
 import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
 import Teams from './pages/Teams.tsx';
@@ -68,7 +68,7 @@ const Navbar = () => {
               </Link>
             ))}
             <Link to="/admin" className="p-2 text-slate-600 hover:text-white transition-colors ml-4">
-               <Settings className="w-4 h-4" />
+               <SettingsIcon className="w-4 h-4" />
             </Link>
           </div>
 
@@ -102,43 +102,45 @@ const Navbar = () => {
   );
 };
 
-const Footer = () => (
-  <footer className="bg-[#020617] text-slate-500 py-24 border-t border-white/5">
-    <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-16">
-      <div className="col-span-1 md:col-span-2">
-        <Link to="/" className="flex items-center gap-3 mb-8 group">
-          <MiPymeSeguraLogo className="w-9 h-9" />
-          <span className="font-black text-xl text-white tracking-tighter uppercase whitespace-nowrap">
-            MI PYME <span className="text-[#cc0000]">SEGURA</span>
-          </span>
-        </Link>
-        <p className="max-w-md text-slate-400 font-medium leading-relaxed">
-          Instalamos confianza. Protegemos el esfuerzo de los emprendedores con tecnología de seguridad de estándar internacional y despliegue en zonas remotas.
-        </p>
+const Footer = () => {
+  const { settings } = useData();
+  return (
+    <footer className="bg-[#020617] text-slate-500 py-24 border-t border-white/5">
+      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-16">
+        <div className="col-span-1 md:col-span-2">
+          <Link to="/" className="flex items-center gap-3 mb-8 group">
+            <MiPymeSeguraLogo className="w-9 h-9" />
+            <span className="font-black text-xl text-white tracking-tighter uppercase whitespace-nowrap">
+              MI PYME <span className="text-[#cc0000]">SEGURA</span>
+            </span>
+          </Link>
+          <p className="max-w-md text-slate-400 font-medium leading-relaxed">
+            Instalamos confianza. Protegemos el esfuerzo de los emprendedores con tecnología de seguridad de estándar internacional.
+          </p>
+        </div>
+        <div>
+          <h4 className="text-white font-black mb-8 text-[10px] uppercase tracking-[0.3em]">Enlaces</h4>
+          <ul className="space-y-4 text-[10px] font-black uppercase tracking-widest">
+            <li><Link to="/nosotros" className="hover:text-[#cc0000] transition-colors">Nosotros</Link></li>
+            <li><Link to="/equipos" className="hover:text-[#cc0000] transition-colors">Equipos Tácticos</Link></li>
+            <li><Link to="/proyectos" className="hover:text-[#cc0000] transition-colors">Casos de Éxito</Link></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="text-white font-black mb-8 text-[10px] uppercase tracking-[0.3em]">Contacto</h4>
+          <ul className="space-y-4 text-[10px] font-black uppercase tracking-widest">
+            <li className="flex items-center gap-3"><MapPin className="w-4 h-4 text-[#cc0000]" /> {settings.address}</li>
+            <li className="flex items-center gap-3"><Phone className="w-4 h-4 text-[#cc0000]" /> {settings.phone}</li>
+            <li className="flex items-center gap-3"><Mail className="w-4 h-4 text-[#cc0000]" /> {settings.email}</li>
+          </ul>
+        </div>
       </div>
-      <div>
-        <h4 className="text-white font-black mb-8 text-[10px] uppercase tracking-[0.3em]">Enlaces</h4>
-        <ul className="space-y-4 text-[10px] font-black uppercase tracking-widest">
-          <li><Link to="/nosotros" className="hover:text-[#cc0000] transition-colors">Nosotros</Link></li>
-          <li><Link to="/equipos" className="hover:text-[#cc0000] transition-colors">Equipos Tácticos</Link></li>
-          <li><Link to="/crear-proyecto" className="hover:text-[#cc0000] transition-colors">Configurador IA</Link></li>
-          <li><Link to="/proyectos" className="hover:text-[#cc0000] transition-colors">Casos de Éxito</Link></li>
-        </ul>
+      <div className="max-w-7xl mx-auto px-4 mt-20 pt-8 border-t border-white/5 text-center text-[10px] font-black tracking-[0.4em] uppercase opacity-40">
+        &copy; {new Date().getFullYear()} MI PYME SEGURA. PROTECCIÓN TOTAL.
       </div>
-      <div>
-        <h4 className="text-white font-black mb-8 text-[10px] uppercase tracking-[0.3em]">Contacto</h4>
-        <ul className="space-y-4 text-[10px] font-black uppercase tracking-widest">
-          <li className="flex items-center gap-3"><MapPin className="w-4 h-4 text-[#cc0000]" /> San Martín 267, Fresia, Chile</li>
-          <li className="flex items-center gap-3"><Phone className="w-4 h-4 text-[#cc0000]" /> +56 9 3035 7842</li>
-          <li className="flex items-center gap-3"><Mail className="w-4 h-4 text-[#cc0000]" /> contacto@mipymesegura.cl</li>
-        </ul>
-      </div>
-    </div>
-    <div className="max-w-7xl mx-auto px-4 mt-20 pt-8 border-t border-white/5 text-center text-[10px] font-black tracking-[0.4em] uppercase opacity-40">
-      &copy; {new Date().getFullYear()} MI PYME SEGURA. PROTECCIÓN TOTAL.
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 export default function App() {
   return (
