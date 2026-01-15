@@ -5,7 +5,7 @@ import {
   Lock, Plus, Trash2, Edit3, Save, X, 
   LayoutDashboard, Camera, Settings, 
   CheckCircle, Info, AlertCircle,
-  FileText, History
+  FileText, History, Video
 } from 'lucide-react';
 
 export default function Admin() {
@@ -23,7 +23,7 @@ export default function Admin() {
   
   // Forms
   const [projForm, setProjForm] = useState({ title: '', type: '', location: '', description: '', result: '', image: '', iconType: 'ShieldCheck' });
-  const [equipForm, setEquipForm] = useState({ category: '', title: '', image: '', description: '', specs: '', technicalSheetUrl: '', updates: '' });
+  const [equipForm, setEquipForm] = useState({ category: '', title: '', image: '', description: '', specs: '', technicalSheetUrl: '', videoUrl: '', updates: '' });
   const [settingsForm, setSettingsForm] = useState(settings);
 
   const handleAuth = (e: React.FormEvent) => {
@@ -35,7 +35,7 @@ export default function Admin() {
   const openAddModal = () => {
     setEditingId(null);
     setProjForm({ title: '', type: '', location: '', description: '', result: '', image: '', iconType: 'ShieldCheck' });
-    setEquipForm({ category: '', title: '', image: '', description: '', specs: '', technicalSheetUrl: '', updates: '' });
+    setEquipForm({ category: '', title: '', image: '', description: '', specs: '', technicalSheetUrl: '', videoUrl: '', updates: '' });
     setIsModalOpen(true);
   };
 
@@ -48,6 +48,7 @@ export default function Admin() {
         ...item, 
         specs: item.specs.join(', '), 
         technicalSheetUrl: item.technicalSheetUrl || '', 
+        videoUrl: item.videoUrl || '',
         updates: item.updates || '' 
       });
     }
@@ -272,11 +273,19 @@ export default function Admin() {
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">URL Imagen</label>
                     <input value={equipForm.image} placeholder="https://..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, image: e.target.value})} />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                      <FileText className="w-3 h-3 text-[#cc0000]" /> Enlace Ficha Técnica (PDF/WEB)
-                    </label>
-                    <input value={equipForm.technicalSheetUrl} placeholder="https://mi-ficha-tecnica.com/manual.pdf" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, technicalSheetUrl: e.target.value})} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                        <FileText className="w-3 h-3 text-[#cc0000]" /> Enlace Ficha Técnica
+                      </label>
+                      <input value={equipForm.technicalSheetUrl} placeholder="PDF/WEB URL" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, technicalSheetUrl: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                        <Video className="w-3 h-3 text-[#cc0000]" /> Enlace Video Demostración
+                      </label>
+                      <input value={equipForm.videoUrl} placeholder="Youtube/Vimeo URL" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, videoUrl: e.target.value})} />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">

@@ -7,7 +7,8 @@ import {
   Satellite,
   ArrowRight,
   History,
-  ExternalLink
+  ExternalLink,
+  Play
 } from 'lucide-react';
 
 const EquipmentCard: React.FC<{ 
@@ -17,6 +18,7 @@ const EquipmentCard: React.FC<{
   description: string, 
   specs: string[],
   technicalSheetUrl?: string,
+  videoUrl?: string,
   updates?: string
 }> = ({ 
   title, 
@@ -25,6 +27,7 @@ const EquipmentCard: React.FC<{
   description, 
   specs,
   technicalSheetUrl,
+  videoUrl,
   updates
 }) => (
   <div className="group relative bg-white/5 rounded-[2.5rem] border border-white/5 overflow-hidden hover:border-[#cc0000]/50 transition-all duration-500 flex flex-col">
@@ -65,21 +68,32 @@ const EquipmentCard: React.FC<{
         ))}
       </div>
       
-      <button 
-        onClick={() => { if(technicalSheetUrl) window.open(technicalSheetUrl, '_blank') }}
-        disabled={!technicalSheetUrl}
-        className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 group/btn ${
-          technicalSheetUrl 
-          ? 'bg-white text-black hover:bg-[#cc0000] hover:text-white' 
-          : 'bg-white/5 text-slate-700 cursor-not-allowed'
-        }`}
-      >
-        {technicalSheetUrl ? (
-          <>Ver Ficha Técnica <ExternalLink className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" /></>
-        ) : (
-          'Ficha No Disponible'
+      <div className="grid grid-cols-1 gap-3">
+        <button 
+          onClick={() => { if(technicalSheetUrl) window.open(technicalSheetUrl, '_blank') }}
+          disabled={!technicalSheetUrl}
+          className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 group/btn ${
+            technicalSheetUrl 
+            ? 'bg-white text-black hover:bg-[#cc0000] hover:text-white' 
+            : 'bg-white/5 text-slate-700 cursor-not-allowed'
+          }`}
+        >
+          {technicalSheetUrl ? (
+            <>Ficha Técnica <ExternalLink className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" /></>
+          ) : (
+            'Ficha No Disponible'
+          )}
+        </button>
+
+        {videoUrl && (
+          <button 
+            onClick={() => window.open(videoUrl, '_blank')}
+            className="w-full py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 bg-[#cc0000]/10 text-[#cc0000] border border-[#cc0000]/20 hover:bg-[#cc0000] hover:text-white group/vid"
+          >
+            Ver Video Demostrativo <Play className="w-3 h-3 fill-current group-hover/vid:scale-125 transition-transform" />
+          </button>
         )}
-      </button>
+      </div>
     </div>
   </div>
 );

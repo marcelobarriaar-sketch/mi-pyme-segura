@@ -20,6 +20,7 @@ interface TeamEquipment {
   description: string;
   specs: string[];
   technicalSheetUrl?: string;
+  videoUrl?: string;
   updates?: string;
 }
 
@@ -98,6 +99,7 @@ const initialEquipment: TeamEquipment[] = [
     description: "Diseñadas para disuasión visual de largo alcance con visión nocturna infrarroja.",
     specs: ["Resolución 4K UHD", "Protección IP67 (Clima Extremo)", "Analítica Humano/Vehículo"],
     technicalSheetUrl: "https://www.hikvision.com/en/products/IP-Products/Network-Cameras/Pro-Series-EasyIP-/ds-2cd2087g2-lu/",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     updates: "Firmware v5.7.10 compatible con IA avanzada."
   },
   {
@@ -108,6 +110,7 @@ const initialEquipment: TeamEquipment[] = [
     description: "Internet satelital de alta velocidad para monitoreo remoto en zonas rurales extremas o marítimas.",
     specs: ["Baja Latencia", "Cobertura Global", "Resiliencia Climática"],
     technicalSheetUrl: "https://www.starlink.com/business",
+    videoUrl: "https://www.youtube.com/watch?v=h_Tf9U_zF7c",
     updates: "Optimización de señal para zonas marítimas activada."
   },
   {
