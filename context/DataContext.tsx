@@ -35,6 +35,8 @@ interface GlobalSettings {
   phone: string;
   email: string;
   address: string;
+  heroTitle: string;
+  heroSubtitle: string;
   instagram?: string;
   facebook?: string;
 }
@@ -76,16 +78,6 @@ const initialProjects: Project[] = [
     result: "Blindaje operativo 24/7 y reducción de incidentes en un 95%.",
     image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=1200",
     iconType: 'HeartPulse'
-  },
-  {
-    id: '2',
-    title: "Sun & Breve Gardens",
-    type: "Agrícola y Paisajismo",
-    location: "Osorno, Chile",
-    description: "Sistema de vigilancia autónoma con energía solar para la protección de viveros y plantaciones de alto valor en zonas sin conectividad eléctrica tradicional.",
-    result: "Cero intrusiones registradas desde la implementación del anillo perimetral.",
-    image: "https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&q=80&w=1200",
-    iconType: 'Target'
   }
 ];
 
@@ -104,7 +96,9 @@ const initialEquipment: TeamEquipment[] = [
 const initialSettings: GlobalSettings = {
   phone: "+56 9 3035 7842",
   email: "contacto@mipymesegura.cl",
-  address: "San Martín 267, Fresia, Chile"
+  address: "San Martín 267, Fresia, Chile",
+  heroTitle: "TU NEGOCIO, BAJO LLAVE",
+  heroSubtitle: "Arquitectura de seguridad proactiva. Diseñamos sistemas inteligentes con rastreo en tiempo real que blindan tu patrimonio."
 };
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -125,7 +119,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [settings, setSettings] = useState<GlobalSettings>(() => {
     const saved = localStorage.getItem('mps_settings');
-    return saved ? JSON.parse(saved) : initialSettings;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Mergear con iniciales por si faltan campos nuevos
+      return { ...initialSettings, ...parsed };
+    }
+    return initialSettings;
   });
 
   useEffect(() => localStorage.setItem('mps_projects', JSON.stringify(projects)), [projects]);

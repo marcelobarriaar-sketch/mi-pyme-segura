@@ -6,7 +6,8 @@ import {
   LayoutDashboard, Camera, Settings, 
   CheckCircle, Info, AlertCircle,
   FileText, History, Video, Download, Upload, Database,
-  Users, Sun, Wifi, Cpu, Eye, Shield, Zap, Satellite, Activity
+  Users, Sun, Wifi, Cpu, Eye, Shield, Zap, Satellite, Activity,
+  Layout
 } from 'lucide-react';
 
 const valueIcons: Record<string, any> = {
@@ -303,19 +304,41 @@ export default function Admin() {
         {activeTab === 'settings' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-in slide-in-from-bottom-4">
             <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/5">
-              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Settings className="text-[#cc0000]" /> Global</h2>
-              <div className="space-y-8">
+              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Layout className="text-[#cc0000]" /> Interfaz Home</h2>
+              <div className="space-y-6 mb-12">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Frase Central (Hero)</label>
+                  <input value={settingsForm.heroTitle} onChange={e => setSettingsForm({...settingsForm, heroTitle: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-black uppercase italic" placeholder="Ej: TU NEGOCIO, BAJO LLAVE" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Frase Secundaria (Descripción)</label>
+                  <textarea value={settingsForm.heroSubtitle} onChange={e => setSettingsForm({...settingsForm, heroSubtitle: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-slate-300 font-medium h-24" placeholder="Breve descripción del servicio..." />
+                </div>
+              </div>
+
+              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Settings className="text-[#cc0000]" /> Contacto Global</h2>
+              <div className="space-y-6">
                 <input value={settingsForm.address} onChange={e => setSettingsForm({...settingsForm, address: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" placeholder="Dirección" />
                 <input value={settingsForm.phone} onChange={e => setSettingsForm({...settingsForm, phone: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" placeholder="Teléfono" />
                 <input value={settingsForm.email} onChange={e => setSettingsForm({...settingsForm, email: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" placeholder="Email" />
-                <button onClick={() => { updateSettings(settingsForm); alert('Sincronizado'); }} className="w-full bg-[#cc0000] text-white py-5 rounded-xl font-black uppercase tracking-widest text-[10px]"><Save className="w-4 h-4 inline-block mr-2" /> Guardar Cambios</button>
+                <button onClick={() => { updateSettings(settingsForm); alert('Sincronizado'); }} className="w-full bg-[#cc0000] text-white py-5 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-900/40"><Save className="w-4 h-4 inline-block mr-2" /> Sincronizar Sistema</button>
               </div>
             </div>
+
             <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/5 flex flex-col">
-              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Database className="text-[#cc0000]" /> Backup</h2>
-              <button onClick={exportBackup} className="w-full bg-white text-black py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] mb-4 group"><Download className="w-4 h-4 inline-block mr-2 group-hover:animate-bounce" /> Exportar .JSON</button>
-              <button onClick={handleImportClick} className="w-full bg-white/5 border border-white/10 text-slate-400 py-6 rounded-2xl font-black uppercase tracking-widest text-[10px]"><Upload className="w-4 h-4 inline-block mr-2" /> Importar Backup</button>
+              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Database className="text-[#cc0000]" /> Backup & Respaldo</h2>
+              <p className="text-slate-500 text-xs mb-8 leading-relaxed font-medium">Descarga una copia completa de tu base de datos (proyectos, equipos y configuración) para restauración rápida.</p>
+              <button onClick={exportBackup} className="w-full bg-white text-black py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] mb-4 group transition-all hover:bg-amber-400"><Download className="w-4 h-4 inline-block mr-2 group-hover:animate-bounce" /> Exportar .JSON</button>
+              <button onClick={handleImportClick} className="w-full bg-white/5 border border-white/10 text-slate-400 py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:text-white hover:bg-white/10 transition-all"><Upload className="w-4 h-4 inline-block mr-2" /> Importar Backup</button>
               <input type="file" ref={fileInputRef} className="hidden" accept=".json" onChange={importBackup} />
+              
+              <div className="mt-auto p-6 bg-amber-400/5 border border-amber-400/10 rounded-2xl">
+                <div className="flex items-center gap-3 text-amber-400 mb-2">
+                   <AlertCircle className="w-4 h-4" />
+                   <span className="text-[10px] font-black uppercase tracking-widest">Aviso Operativo</span>
+                </div>
+                <p className="text-slate-400 text-[9px] font-medium leading-relaxed">Los cambios en esta sección afectan la visibilidad pública de la marca. Verifique los textos antes de sincronizar.</p>
+              </div>
             </div>
           </div>
         )}
