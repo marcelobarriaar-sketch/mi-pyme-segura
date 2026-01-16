@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Building2, 
@@ -74,8 +73,8 @@ export default function ProjectBuilder() {
       const result = await generateSecurityProposal(formData);
       setRecommendation(result);
     } catch (err: any) {
-      console.error("UI Submission Error:", err);
-      setError("No pudimos conectar con el motor de IA. Esto puede deberse a una saturación temporal. Por favor, intente generar la propuesta nuevamente.");
+      console.error("AI Generation Failed:", err);
+      setError("El motor de IA no pudo completar el diseño. Esto puede ocurrir si los parámetros son insuficientes o hay una interrupción de red. Por favor, intente de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -87,29 +86,26 @@ export default function ProjectBuilder() {
 
     setTimeout(() => {
       const recipient = settings.contactRecipient || settings.email;
-      const subject = encodeURIComponent(`[PROYECTO IA] Diseño de Seguridad: ${formData.businessType} - ${formData.location}`);
+      const subject = encodeURIComponent(`[MI PYME SEGURA] Propuesta IA: ${formData.businessType} - ${formData.location}`);
       
-      let hardwareList = recommendation.recommendedHardware.map(hw => `• [CANT: ${hw.quantity}] ${hw.item}: ${hw.description}`).join('\n');
+      let hardwareList = recommendation.recommendedHardware.map(hw => `• [${hw.quantity}] ${hw.item}: ${hw.description}`).join('\n');
       let stepsList = recommendation.implementationPlan.map((p, i) => `${i+1}. ${p}`).join('\n');
 
       const body = encodeURIComponent(
-        `ORDEN DE TRABAJO PRELIMINAR - DISEÑO IA\n` +
+        `REPORTE DE DISEÑO TÉCNICO - MI PYME SEGURA\n` +
         `===============================================\n\n` +
-        `PERFIL DEL PROYECTO ANALIZADO:\n` +
-        `- SECTOR: ${formData.businessType}\n` +
-        `- ESCALA: ${formData.size}\n` +
-        `- ZONA TÁCTICA: ${formData.location}\n` +
-        `- PRIORIDADES: ${formData.priorities.join(', ')}\n` +
-        `- BLINDAJE: ${formData.budget}\n\n` +
-        `ANÁLISIS DE RIESGO IA:\n` +
+        `DATOS DEL PROYECTO:\n` +
+        `- RUBRO: ${formData.businessType}\n` +
+        `- UBICACIÓN: ${formData.location}\n` +
+        `- PRIORIDADES: ${formData.priorities.join(', ')}\n\n` +
+        `ANÁLISIS DE LA IA:\n` +
         `${recommendation.summary}\n\n` +
-        `EQUIPAMIENTO REQUERIDO:\n` +
+        `CONFIGURACIÓN RECOMENDADA:\n` +
         `${hardwareList}\n\n` +
-        `CRONOGRAMA DE DESPLIEGUE:\n` +
+        `PLAN DE INSTALACIÓN:\n` +
         `${stepsList}\n\n` +
-        `VENTANA DE EJECUCIÓN ESTIMADA: ${recommendation.estimatedTime}\n\n` +
-        `===============================================\n` +
-        `Este reporte sirve como base para la validación técnica en terreno.`
+        `PLAZO ESTIMADO: ${recommendation.estimatedTime}\n\n` +
+        `===============================================`
       );
 
       window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
@@ -120,14 +116,14 @@ export default function ProjectBuilder() {
   if (recommendation) {
     return (
       <div className="max-w-5xl mx-auto py-24 px-4 animate-in zoom-in duration-700">
-        <div className="bg-[#020617] rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-white/5 overflow-hidden">
+        <div className="bg-[#020617] rounded-[2.5rem] shadow-2xl border border-white/5 overflow-hidden">
           <div className="bg-[#cc0000] p-12 text-white relative">
             <div className="absolute top-0 right-0 w-64 h-full bg-black/10 blur-3xl rounded-full"></div>
             <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div>
-                <span className="text-white/80 font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Reporte de Inteligencia #MS-2024</span>
-                <h1 className="text-4xl font-black uppercase tracking-tighter">Propuesta de <span className="italic">Seguridad Elite</span></h1>
-                <p className="text-white/70 font-medium mt-2 uppercase tracking-wide text-xs">Para: {formData.businessType} en {formData.location}</p>
+                <span className="text-white/80 font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Reporte de Inteligencia Mi Pyme Segura</span>
+                <h1 className="text-4xl font-black uppercase tracking-tighter italic">Propuesta <span className="text-amber-400">Personalizada</span></h1>
+                <p className="text-white/70 font-medium mt-2 uppercase tracking-wide text-xs">{formData.businessType} | {formData.location}</p>
               </div>
               <ShieldCheck className="w-16 h-16 text-white" />
             </div>
@@ -136,7 +132,7 @@ export default function ProjectBuilder() {
           <div className="p-12 space-y-16">
             <section>
               <h3 className="text-xl font-black text-white mb-6 flex items-center gap-3 uppercase tracking-tight">
-                <FileText className="w-6 h-6 text-[#cc0000]" /> Evaluación de Escenario
+                <FileText className="w-6 h-6 text-[#cc0000]" /> Estrategia de Seguridad
               </h3>
               <div className="text-slate-300 leading-relaxed text-lg bg-white/5 p-10 rounded-[2rem] border border-white/5 font-medium italic">
                 {recommendation.summary}
@@ -146,12 +142,12 @@ export default function ProjectBuilder() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               <section>
                 <h3 className="text-xl font-black text-white mb-6 flex items-center gap-3 uppercase tracking-tight">
-                  <Camera className="w-6 h-6 text-[#cc0000]" /> Inventario Técnico Elite
+                  <Camera className="w-6 h-6 text-[#cc0000]" /> Kit Tecnológico
                 </h3>
                 <div className="space-y-4">
                   {recommendation.recommendedHardware.map((hw, i) => (
-                    <div key={i} className="flex items-center gap-5 p-5 bg-white/5 border border-white/5 rounded-2xl hover:border-[#cc0000]/50 transition-colors">
-                      <div className="bg-[#cc0000] text-white font-black w-12 h-12 flex items-center justify-center rounded-xl shadow-lg shadow-red-900/40">
+                    <div key={i} className="flex items-center gap-5 p-5 bg-white/5 border border-white/5 rounded-2xl">
+                      <div className="bg-[#cc0000] text-white font-black w-12 h-12 flex items-center justify-center rounded-xl shadow-lg">
                         {hw.quantity}
                       </div>
                       <div>
@@ -164,7 +160,7 @@ export default function ProjectBuilder() {
               </section>
               <section>
                 <h3 className="text-xl font-black text-white mb-6 flex items-center gap-3 uppercase tracking-tight">
-                  <CheckCircle className="w-6 h-6 text-[#cc0000]" /> Hoja de Ruta Operativa
+                  <CheckCircle className="w-6 h-6 text-[#cc0000]" /> Pasos a Seguir
                 </h3>
                 <div className="space-y-6">
                   {recommendation.implementationPlan.map((plan, i) => (
@@ -181,23 +177,23 @@ export default function ProjectBuilder() {
 
             <div className="pt-12 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-10">
               <div className="text-center sm:text-left">
-                <p className="text-xs font-black text-slate-600 uppercase tracking-widest mb-1">Ventana de ejecución</p>
+                <p className="text-xs font-black text-slate-600 uppercase tracking-widest mb-1">Tiempo de Ejecución</p>
                 <p className="text-3xl font-black text-white italic">{recommendation.estimatedTime}</p>
               </div>
-              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <div className="flex gap-4">
                 <button 
                   onClick={() => { setRecommendation(null); setError(null); setCurrentStep(1); }}
-                  className="px-8 py-5 border-2 border-white/10 text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white/5 hover:text-white transition-all"
+                  className="px-8 py-5 border-2 border-white/10 text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:text-white transition-all"
                 >
-                  Reiniciar
+                  Nuevo Diseño
                 </button>
                 <button 
                   onClick={handleSendProposalEmail}
                   disabled={sendingEmail}
-                  className="px-8 py-5 bg-amber-400 text-black rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-500 transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50"
+                  className="px-10 py-5 bg-[#cc0000] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-red-700 transition-all shadow-xl flex items-center gap-3"
                 >
                   {sendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
-                  Enviar a mi Email
+                  Recibir por Email
                 </button>
               </div>
             </div>
@@ -211,22 +207,21 @@ export default function ProjectBuilder() {
     <div className="min-h-screen bg-[#020617] py-24 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <span className="text-[#cc0000] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Motor de Inteligencia Operativa</span>
-          <h1 className="text-5xl font-black text-white mb-6 uppercase tracking-tighter italic">Diseñador de <span className="text-[#cc0000]">Seguridad</span></h1>
-          <p className="text-xl text-slate-400 font-medium">Configure sus requerimientos para una auditoría preliminar automatizada.</p>
+          <span className="text-[#cc0000] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Asistente Táctico Digital</span>
+          <h1 className="text-5xl font-black text-white mb-6 uppercase tracking-tighter italic">Configurador de <span className="text-[#cc0000]">Seguridad</span></h1>
         </div>
 
         {/* Stepper */}
         <div className="mb-24 flex justify-between items-center relative max-w-3xl mx-auto">
           <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[1px] bg-white/10 z-0"></div>
           <div 
-            className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-[#cc0000] z-0 transition-all duration-1000 shadow-[0_0_20px_rgba(204,0,0,0.6)]"
+            className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-[#cc0000] z-0 transition-all duration-1000"
             style={{ width: `${(currentStep - 1) / (steps.length - 1) * 100}%` }}
           ></div>
           {steps.map((step) => (
             <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black transition-all duration-500 rotate-45 ${
-                currentStep >= step.id ? 'bg-[#cc0000] text-white shadow-lg shadow-red-900/40 scale-110' : 'bg-[#0f172a] text-slate-600 border border-white/5'
+                currentStep >= step.id ? 'bg-[#cc0000] text-white shadow-lg scale-110' : 'bg-[#0f172a] text-slate-600 border border-white/5'
               }`}>
                 <div className="-rotate-45">{step.id}</div>
               </div>
@@ -237,26 +232,23 @@ export default function ProjectBuilder() {
           ))}
         </div>
 
-        <div className="bg-white/5 rounded-[2.5rem] shadow-2xl p-12 sm:p-20 min-h-[600px] flex flex-col justify-between border border-white/5 relative overflow-hidden backdrop-blur-md">
+        <div className="bg-white/5 rounded-[2.5rem] p-12 sm:p-20 min-h-[500px] flex flex-col justify-between border border-white/5 backdrop-blur-md">
           {loading ? (
             <div className="flex-grow flex flex-col items-center justify-center py-20">
                <div className="w-24 h-24 bg-[#cc0000]/10 rounded-full flex items-center justify-center mb-8 relative">
                  <Loader2 className="w-12 h-12 text-[#cc0000] animate-spin" />
-                 <div className="absolute inset-0 border-4 border-[#cc0000] border-t-transparent rounded-full animate-[spin_3s_linear_infinite]"></div>
+                 <div className="absolute inset-0 border-4 border-[#cc0000] border-t-transparent rounded-full animate-spin"></div>
                </div>
-               <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-4 text-center">Analizando <br/><span className="text-[#cc0000]">Arquitectura de Red</span></h2>
-               <div className="space-y-3 text-center">
-                  <p className="text-slate-500 font-black uppercase tracking-widest text-[10px] animate-pulse">Cruzando datos con incidencia delictual en {formData.location}...</p>
-                  <p className="text-slate-600 font-bold text-[9px] uppercase tracking-wider">Esto puede tardar hasta 30 segundos.</p>
-               </div>
+               <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter mb-4 text-center">Consultando <br/><span className="text-[#cc0000]">Motor Mi Pyme Segura</span></h2>
+               <p className="text-slate-500 font-black uppercase tracking-widest text-[9px] animate-pulse">Analizando topografía y vectores de riesgo...</p>
             </div>
           ) : error ? (
             <div className="flex-grow flex flex-col items-center justify-center py-20">
-               <div className="bg-red-900/20 p-10 rounded-[2.5rem] border border-red-500/20 text-center max-w-md shadow-2xl">
+               <div className="bg-red-900/10 p-10 rounded-[2.5rem] border border-red-500/20 text-center max-w-md">
                  <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-6" />
-                 <h2 className="text-2xl font-black text-white uppercase italic mb-4 tracking-tighter">Fallo de Comunicación</h2>
+                 <h2 className="text-2xl font-black text-white uppercase italic mb-4">Error Operativo</h2>
                  <p className="text-slate-400 font-medium mb-10 leading-relaxed text-sm">{error}</p>
-                 <button onClick={handleSubmit} className="flex items-center gap-3 bg-[#cc0000] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] mx-auto hover:bg-red-700 transition-all shadow-lg shadow-red-900/40">
+                 <button onClick={handleSubmit} className="flex items-center gap-3 bg-[#cc0000] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] mx-auto hover:bg-red-700 transition-all shadow-lg">
                    <RefreshCw className="w-4 h-4" /> Reintentar Ahora
                  </button>
                </div>
@@ -278,8 +270,8 @@ export default function ProjectBuilder() {
                         onClick={() => setFormData({ ...formData, businessType: item.label })}
                         className={`p-10 rounded-3xl border-2 transition-all flex flex-col items-center gap-6 ${
                           formData.businessType === item.label 
-                            ? 'border-[#cc0000] bg-[#cc0000]/10 text-[#cc0000] shadow-2xl' 
-                            : 'border-white/5 hover:border-white/20 text-slate-500 bg-white/2'
+                            ? 'border-[#cc0000] bg-[#cc0000]/10 text-[#cc0000]' 
+                            : 'border-white/5 text-slate-500 bg-white/2'
                         }`}
                       >
                         <item.icon className="w-10 h-10" />
@@ -292,24 +284,19 @@ export default function ProjectBuilder() {
 
               {currentStep === 2 && (
                 <div className="space-y-10">
-                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Dimensiones <br/>del Recinto</h2>
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Dimensión <br/>del Recinto</h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[
-                      { id: 'small', label: 'Compacto', desc: '< 150m²' },
-                      { id: 'medium', label: 'Intermedio', desc: '150 - 800m²' },
-                      { id: 'large', label: 'Masivo', desc: '> 800m²' }
-                    ].map((item) => (
+                    {['Compacto', 'Intermedio', 'Masivo'].map((label) => (
                       <button
-                        key={item.id}
-                        onClick={() => setFormData({ ...formData, size: item.label })}
+                        key={label}
+                        onClick={() => setFormData({ ...formData, size: label })}
                         className={`p-12 rounded-[2rem] border-2 transition-all text-center ${
-                          formData.size === item.label 
-                            ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-2xl' 
-                            : 'border-white/5 hover:border-white/20 bg-white/2'
+                          formData.size === label 
+                            ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-xl' 
+                            : 'border-white/5 bg-white/2'
                         }`}
                       >
-                        <div className="font-black text-2xl mb-2 text-white uppercase tracking-tighter italic">{item.label}</div>
-                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{item.desc}</div>
+                        <div className="font-black text-2xl text-white uppercase tracking-tighter italic">{label}</div>
                       </button>
                     ))}
                   </div>
@@ -318,27 +305,20 @@ export default function ProjectBuilder() {
 
               {currentStep === 3 && (
                 <div className="space-y-10">
-                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Matriz de <br/>Prioridades</h2>
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Prioridades</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {[
-                      { id: 'robo', label: 'Protección de Activos', icon: Target },
-                      { id: 'monitoreo', label: 'Centralización de Video', icon: Camera },
-                      { id: 'intrusos', label: 'Respuesta ante Intrusos', icon: ShieldAlert },
-                      { id: 'incendio', label: 'Seguridad de Vida', icon: AlertTriangle }
-                    ].map((item) => (
+                    {['Activos', 'Personas', 'Disuasión', 'Analítica'].map((label) => (
                       <button
-                        key={item.id}
-                        onClick={() => handlePriorityToggle(item.label)}
-                        className={`p-8 rounded-[2rem] border-2 transition-all flex items-center gap-6 text-left ${
-                          formData.priorities.includes(item.label) 
-                            ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-2xl' 
-                            : 'border-white/5 hover:border-white/20 bg-white/2'
+                        key={label}
+                        onClick={() => handlePriorityToggle(label)}
+                        className={`p-8 rounded-[2rem] border-2 transition-all flex items-center gap-6 ${
+                          formData.priorities.includes(label) 
+                            ? 'border-[#cc0000] bg-[#cc0000]/10' 
+                            : 'border-white/5 bg-white/2'
                         }`}
                       >
-                        <div className={`p-4 rounded-2xl ${formData.priorities.includes(item.label) ? 'bg-[#cc0000] text-white shadow-lg shadow-red-900/40' : 'bg-white/5 text-slate-600'}`}>
-                          <item.icon className="w-7 h-7" />
-                        </div>
-                        <span className="font-black text-white uppercase text-xs tracking-widest">{item.label}</span>
+                        <ShieldAlert className={`w-7 h-7 ${formData.priorities.includes(label) ? 'text-[#cc0000]' : 'text-slate-600'}`} />
+                        <span className="font-black text-white uppercase text-xs tracking-widest">{label}</span>
                       </button>
                     ))}
                   </div>
@@ -347,40 +327,32 @@ export default function ProjectBuilder() {
 
               {currentStep === 4 && (
                 <div className="space-y-10">
-                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Ubicación <br/>Geográfica</h2>
-                  <div className="space-y-6">
-                    <input
-                      type="text"
-                      placeholder="Ej. Vitacura, Quilicura, Concepción..."
-                      value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      className="w-full p-8 bg-white/5 border-2 border-white/5 rounded-[2rem] focus:border-[#cc0000] outline-none transition-all text-2xl font-black italic uppercase tracking-tighter text-white placeholder:text-slate-700"
-                    />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Nuestro algoritmo cruza datos con las tasas de incidencia local para optimizar el equipamiento.</p>
-                  </div>
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Ubicación</h2>
+                  <input
+                    type="text"
+                    placeholder="Ej. Vitacura, Santiago Centro..."
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    className="w-full p-8 bg-white/5 border-2 border-white/5 rounded-[2rem] focus:border-[#cc0000] outline-none transition-all text-2xl font-black italic uppercase text-white placeholder:text-slate-800"
+                  />
                 </div>
               )}
 
               {currentStep === 5 && (
                 <div className="space-y-10">
-                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Nivel de <br/>Protección</h2>
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Nivel de <br/>Seguridad</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    {[
-                      { id: 'eco', label: 'Esencial', desc: 'Funcionalidad Básica' },
-                      { id: 'std', label: 'Avanzado', desc: 'Estándar Corporativo' },
-                      { id: 'pro', label: 'Elite', desc: 'Grado Militar / Analítica' }
-                    ].map((item) => (
+                    {['Esencial', 'Corporativo', 'Elite'].map((label) => (
                       <button
-                        key={item.id}
-                        onClick={() => setFormData({ ...formData, budget: item.label })}
+                        key={label}
+                        onClick={() => setFormData({ ...formData, budget: label })}
                         className={`p-12 rounded-[2rem] border-2 transition-all text-center ${
-                          formData.budget === item.label 
-                            ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-2xl' 
-                            : 'border-white/5 hover:border-white/20 bg-white/2'
+                          formData.budget === label 
+                            ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-xl' 
+                            : 'border-white/5 bg-white/2'
                         }`}
                       >
-                        <div className="font-black text-2xl mb-2 text-white uppercase tracking-tighter italic">{item.label}</div>
-                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{item.desc}</div>
+                        <div className="font-black text-2xl text-white uppercase tracking-tighter italic">{label}</div>
                       </button>
                     ))}
                   </div>
@@ -398,19 +370,13 @@ export default function ProjectBuilder() {
                   currentStep === 1 ? 'opacity-0 pointer-events-none' : 'text-slate-500 hover:text-white'
                 }`}
               >
-                Regresar
+                Anterior
               </button>
               
               {currentStep < 5 ? (
                 <button
                   onClick={nextStep}
-                  disabled={
-                    (currentStep === 1 && !formData.businessType) ||
-                    (currentStep === 2 && !formData.size) ||
-                    (currentStep === 3 && formData.priorities.length === 0) ||
-                    (currentStep === 4 && !formData.location)
-                  }
-                  className="px-12 py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-[#cc0000] hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white/10 shadow-2xl flex items-center gap-2"
+                  className="px-12 py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-[#cc0000] hover:text-white transition-all shadow-xl flex items-center gap-2"
                 >
                   Continuar <ChevronRight className="w-4 h-4" />
                 </button>
@@ -418,10 +384,10 @@ export default function ProjectBuilder() {
                 <button
                   onClick={handleSubmit}
                   disabled={!formData.budget}
-                  className="px-12 py-5 bg-[#cc0000] text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-red-700 transition-all shadow-lg shadow-red-900/40 flex items-center gap-3"
+                  className="px-12 py-5 bg-[#cc0000] text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-red-700 transition-all shadow-lg flex items-center gap-3"
                 >
                   <Sparkles className="w-5 h-5" />
-                  Generar Propuesta IA
+                  Generar con IA
                 </button>
               )}
             </div>

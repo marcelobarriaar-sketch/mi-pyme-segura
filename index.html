@@ -17,7 +17,6 @@
         }
     </style>
     <script>
-        window.process = { env: { NODE_ENV: 'production', API_KEY: '' } };
         window.onerror = function(msg, url, line) {
             const display = document.getElementById('error-display');
             if (display) {

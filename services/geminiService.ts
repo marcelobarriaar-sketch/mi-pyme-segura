@@ -1,36 +1,34 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { ProjectConfig, SecurityRecommendation } from "../types.ts";
 
 export const generateSecurityProposal = async (config: ProjectConfig): Promise<SecurityRecommendation> => {
-  // Inicialización con la API KEY inyectada
+  // Inicialización del cliente con la clave del entorno
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  const userPrompt = `Analiza y genera una propuesta técnica de seguridad para:
+  const userPrompt = `Genera un diseño técnico de seguridad para una Pyme con los siguientes parámetros:
   - Sector: ${config.businessType}
   - Tamaño: ${config.size}
   - Prioridades: ${config.priorities.join(", ")}
-  - Nivel: ${config.budget}
+  - Nivel de Protección: ${config.budget}
   - Ubicación: ${config.location}
   
-  Instrucción técnica: Debes proponer hardware específico disponible en Chile y un plan de acción lógico.`;
+  Considera equipos disponibles en el mercado chileno y normativas de seguridad actuales.`;
 
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+      contents: userPrompt,
       config: {
-        systemInstruction: "Eres el Ingeniero Jefe de Mi Pyme Segura. Tu misión es diseñar arquitecturas de seguridad electrónica profesionales. Responde EXCLUSIVAMENTE en formato JSON siguiendo el esquema proporcionado. No añadas texto introductorio ni conclusiones fuera del JSON.",
+        systemInstruction: "Eres el Ingeniero Jefe de Diseño de 'Mi Pyme Segura'. Tu objetivo es crear propuestas técnicas de seguridad electrónica (CCTV, Alarma, Control de Acceso) altamente profesionales. Responde exclusivamente en formato JSON.",
         responseMimeType: "application/json",
-        // CRÍTICO: Configuración de tokens sincronizada para evitar errores de conexión/vacío
-        maxOutputTokens: 8192,
-        thinkingConfig: { thinkingBudget: 2048 },
+        maxOutputTokens: 2048,
+        thinkingConfig: { thinkingBudget: 512 },
         responseSchema: {
           type: Type.OBJECT,
           properties: {
             summary: { 
               type: Type.STRING, 
-              description: "Análisis estratégico de la seguridad para esta Pyme." 
+              description: "Análisis estratégico de seguridad para el escenario propuesto." 
             },
             recommendedHardware: {
               type: Type.ARRAY,
@@ -46,10 +44,12 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
             },
             implementationPlan: {
               type: Type.ARRAY,
-              items: { type: Type.STRING }
+              items: { type: Type.STRING },
+              description: "Pasos tácticos para la ejecución del proyecto."
             },
             estimatedTime: { 
-              type: Type.STRING 
+              type: Type.STRING,
+              description: "Tiempo estimado de entrega e instalación."
             }
           },
           required: ["summary", "recommendedHardware", "implementationPlan", "estimatedTime"]
@@ -57,17 +57,14 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
       }
     });
 
-    const textOutput = response.text;
-    if (!textOutput) {
-      throw new Error("Respuesta vacía del motor Gemini.");
-    }
+    const output = response.text;
+    if (!output) throw new Error("Respuesta de IA nula.");
 
-    // Limpieza de posibles bloques markdown para asegurar JSON puro
-    const cleanJson = textOutput.replace(/```json/g, "").replace(/```/g, "").trim();
-    
+    // Limpieza de posibles delimitadores de código
+    const cleanJson = output.replace(/```json/g, "").replace(/```/g, "").trim();
     return JSON.parse(cleanJson) as SecurityRecommendation;
   } catch (error) {
-    console.error("Gemini Service Error:", error);
-    throw new Error("Error en la conexión con el servidor de IA. Inténtelo de nuevo.");
+    console.error("Error crítico en el motor de Mi Pyme Segura:", error);
+    throw error;
   }
 };
