@@ -73,8 +73,8 @@ export default function ProjectBuilder() {
       const result = await generateSecurityProposal(formData);
       setRecommendation(result);
     } catch (err: any) {
-      console.error("AI Generation Failed:", err);
-      setError("El motor de IA no pudo completar el diseño. Esto puede ocurrir si los parámetros son insuficientes o hay una interrupción de red. Por favor, intente de nuevo.");
+      console.error("AI Project Generation Error:", err);
+      setError("No pudimos procesar tu diseño. Verifica tu conexión o intenta con parámetros más simples.");
     } finally {
       setLoading(false);
     }
@@ -94,17 +94,16 @@ export default function ProjectBuilder() {
       const body = encodeURIComponent(
         `REPORTE DE DISEÑO TÉCNICO - MI PYME SEGURA\n` +
         `===============================================\n\n` +
-        `DATOS DEL PROYECTO:\n` +
+        `PERFIL DEL PROYECTO:\n` +
         `- RUBRO: ${formData.businessType}\n` +
-        `- UBICACIÓN: ${formData.location}\n` +
-        `- PRIORIDADES: ${formData.priorities.join(', ')}\n\n` +
-        `ANÁLISIS DE LA IA:\n` +
+        `- ZONA: ${formData.location}\n\n` +
+        `ANÁLISIS ESTRATÉGICO:\n` +
         `${recommendation.summary}\n\n` +
-        `CONFIGURACIÓN RECOMENDADA:\n` +
+        `EQUIPAMIENTO DISEÑADO:\n` +
         `${hardwareList}\n\n` +
-        `PLAN DE INSTALACIÓN:\n` +
+        `PLAN DE ACCIÓN:\n` +
         `${stepsList}\n\n` +
-        `PLAZO ESTIMADO: ${recommendation.estimatedTime}\n\n` +
+        `PLAZO DE ENTREGA: ${recommendation.estimatedTime}\n\n` +
         `===============================================`
       );
 
@@ -122,7 +121,7 @@ export default function ProjectBuilder() {
             <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div>
                 <span className="text-white/80 font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Reporte de Inteligencia Mi Pyme Segura</span>
-                <h1 className="text-4xl font-black uppercase tracking-tighter italic">Propuesta <span className="text-amber-400">Personalizada</span></h1>
+                <h1 className="text-4xl font-black uppercase tracking-tighter italic">Diseño <span className="text-amber-400">Finalizado</span></h1>
                 <p className="text-white/70 font-medium mt-2 uppercase tracking-wide text-xs">{formData.businessType} | {formData.location}</p>
               </div>
               <ShieldCheck className="w-16 h-16 text-white" />
@@ -132,7 +131,7 @@ export default function ProjectBuilder() {
           <div className="p-12 space-y-16">
             <section>
               <h3 className="text-xl font-black text-white mb-6 flex items-center gap-3 uppercase tracking-tight">
-                <FileText className="w-6 h-6 text-[#cc0000]" /> Estrategia de Seguridad
+                <FileText className="w-6 h-6 text-[#cc0000]" /> Estrategia y Análisis de Riesgo
               </h3>
               <div className="text-slate-300 leading-relaxed text-lg bg-white/5 p-10 rounded-[2rem] border border-white/5 font-medium italic">
                 {recommendation.summary}
@@ -142,7 +141,7 @@ export default function ProjectBuilder() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               <section>
                 <h3 className="text-xl font-black text-white mb-6 flex items-center gap-3 uppercase tracking-tight">
-                  <Camera className="w-6 h-6 text-[#cc0000]" /> Kit Tecnológico
+                  <Camera className="w-6 h-6 text-[#cc0000]" /> Inventario Técnico
                 </h3>
                 <div className="space-y-4">
                   {recommendation.recommendedHardware.map((hw, i) => (
@@ -160,7 +159,7 @@ export default function ProjectBuilder() {
               </section>
               <section>
                 <h3 className="text-xl font-black text-white mb-6 flex items-center gap-3 uppercase tracking-tight">
-                  <CheckCircle className="w-6 h-6 text-[#cc0000]" /> Pasos a Seguir
+                  <CheckCircle className="w-6 h-6 text-[#cc0000]" /> Hoja de Ruta Operativa
                 </h3>
                 <div className="space-y-6">
                   {recommendation.implementationPlan.map((plan, i) => (
@@ -177,7 +176,7 @@ export default function ProjectBuilder() {
 
             <div className="pt-12 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-10">
               <div className="text-center sm:text-left">
-                <p className="text-xs font-black text-slate-600 uppercase tracking-widest mb-1">Tiempo de Ejecución</p>
+                <p className="text-xs font-black text-slate-600 uppercase tracking-widest mb-1">Ventana de Instalación</p>
                 <p className="text-3xl font-black text-white italic">{recommendation.estimatedTime}</p>
               </div>
               <div className="flex gap-4">
@@ -185,7 +184,7 @@ export default function ProjectBuilder() {
                   onClick={() => { setRecommendation(null); setError(null); setCurrentStep(1); }}
                   className="px-8 py-5 border-2 border-white/10 text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:text-white transition-all"
                 >
-                  Nuevo Diseño
+                  Nuevo Proyecto
                 </button>
                 <button 
                   onClick={handleSendProposalEmail}
@@ -193,7 +192,7 @@ export default function ProjectBuilder() {
                   className="px-10 py-5 bg-[#cc0000] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-red-700 transition-all shadow-xl flex items-center gap-3"
                 >
                   {sendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
-                  Recibir por Email
+                  Recibir Propuesta
                 </button>
               </div>
             </div>
@@ -207,8 +206,8 @@ export default function ProjectBuilder() {
     <div className="min-h-screen bg-[#020617] py-24 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <span className="text-[#cc0000] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Asistente Táctico Digital</span>
-          <h1 className="text-5xl font-black text-white mb-6 uppercase tracking-tighter italic">Configurador de <span className="text-[#cc0000]">Seguridad</span></h1>
+          <span className="text-[#cc0000] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Asistente de Diseño Táctico</span>
+          <h1 className="text-5xl font-black text-white mb-6 uppercase tracking-tighter italic">Constructor de <span className="text-[#cc0000]">Proyectos</span></h1>
         </div>
 
         {/* Stepper */}
@@ -232,21 +231,24 @@ export default function ProjectBuilder() {
           ))}
         </div>
 
-        <div className="bg-white/5 rounded-[2.5rem] p-12 sm:p-20 min-h-[500px] flex flex-col justify-between border border-white/5 backdrop-blur-md">
+        <div className="bg-white/5 rounded-[2.5rem] p-12 sm:p-20 min-h-[500px] flex flex-col justify-between border border-white/5 backdrop-blur-md relative overflow-hidden">
           {loading ? (
             <div className="flex-grow flex flex-col items-center justify-center py-20">
                <div className="w-24 h-24 bg-[#cc0000]/10 rounded-full flex items-center justify-center mb-8 relative">
                  <Loader2 className="w-12 h-12 text-[#cc0000] animate-spin" />
                  <div className="absolute inset-0 border-4 border-[#cc0000] border-t-transparent rounded-full animate-spin"></div>
                </div>
-               <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter mb-4 text-center">Consultando <br/><span className="text-[#cc0000]">Motor Mi Pyme Segura</span></h2>
-               <p className="text-slate-500 font-black uppercase tracking-widest text-[9px] animate-pulse">Analizando topografía y vectores de riesgo...</p>
+               <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter mb-4 text-center">Consultando <br/><span className="text-[#cc0000]">Motor Gemini Pro</span></h2>
+               <div className="space-y-2 text-center">
+                <p className="text-slate-500 font-black uppercase tracking-widest text-[9px] animate-pulse">Analizando topografía del sector...</p>
+                <p className="text-slate-600 font-black uppercase tracking-widest text-[8px]">Esto puede tardar hasta 30 segundos.</p>
+               </div>
             </div>
           ) : error ? (
             <div className="flex-grow flex flex-col items-center justify-center py-20">
                <div className="bg-red-900/10 p-10 rounded-[2.5rem] border border-red-500/20 text-center max-w-md">
                  <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-6" />
-                 <h2 className="text-2xl font-black text-white uppercase italic mb-4">Error Operativo</h2>
+                 <h2 className="text-2xl font-black text-white uppercase italic mb-4 tracking-tighter">Error Operativo</h2>
                  <p className="text-slate-400 font-medium mb-10 leading-relaxed text-sm">{error}</p>
                  <button onClick={handleSubmit} className="flex items-center gap-3 bg-[#cc0000] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] mx-auto hover:bg-red-700 transition-all shadow-lg">
                    <RefreshCw className="w-4 h-4" /> Reintentar Ahora
@@ -257,7 +259,7 @@ export default function ProjectBuilder() {
             <div className="relative z-10 animate-in fade-in slide-in-from-right-8 duration-500">
               {currentStep === 1 && (
                 <div className="space-y-10">
-                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Sector <br/>Económico</h2>
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Rubro del <br/>Proyecto</h2>
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                     {[
                       { id: 'comercio', label: 'Comercio', icon: Store },
@@ -271,7 +273,7 @@ export default function ProjectBuilder() {
                         className={`p-10 rounded-3xl border-2 transition-all flex flex-col items-center gap-6 ${
                           formData.businessType === item.label 
                             ? 'border-[#cc0000] bg-[#cc0000]/10 text-[#cc0000]' 
-                            : 'border-white/5 text-slate-500 bg-white/2'
+                            : 'border-white/5 text-slate-500 bg-white/2 hover:border-white/20'
                         }`}
                       >
                         <item.icon className="w-10 h-10" />
@@ -284,7 +286,7 @@ export default function ProjectBuilder() {
 
               {currentStep === 2 && (
                 <div className="space-y-10">
-                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Dimensión <br/>del Recinto</h2>
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Escala de <br/>Protección</h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {['Compacto', 'Intermedio', 'Masivo'].map((label) => (
                       <button
@@ -293,7 +295,7 @@ export default function ProjectBuilder() {
                         className={`p-12 rounded-[2rem] border-2 transition-all text-center ${
                           formData.size === label 
                             ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-xl' 
-                            : 'border-white/5 bg-white/2'
+                            : 'border-white/5 bg-white/2 hover:border-white/20'
                         }`}
                       >
                         <div className="font-black text-2xl text-white uppercase tracking-tighter italic">{label}</div>
@@ -305,7 +307,7 @@ export default function ProjectBuilder() {
 
               {currentStep === 3 && (
                 <div className="space-y-10">
-                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Prioridades</h2>
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Prioridades <br/>Tácticas</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {['Activos', 'Personas', 'Disuasión', 'Analítica'].map((label) => (
                       <button
@@ -314,7 +316,7 @@ export default function ProjectBuilder() {
                         className={`p-8 rounded-[2rem] border-2 transition-all flex items-center gap-6 ${
                           formData.priorities.includes(label) 
                             ? 'border-[#cc0000] bg-[#cc0000]/10' 
-                            : 'border-white/5 bg-white/2'
+                            : 'border-white/5 bg-white/2 hover:border-white/20'
                         }`}
                       >
                         <ShieldAlert className={`w-7 h-7 ${formData.priorities.includes(label) ? 'text-[#cc0000]' : 'text-slate-600'}`} />
@@ -327,20 +329,25 @@ export default function ProjectBuilder() {
 
               {currentStep === 4 && (
                 <div className="space-y-10">
-                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Ubicación</h2>
-                  <input
-                    type="text"
-                    placeholder="Ej. Vitacura, Santiago Centro..."
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full p-8 bg-white/5 border-2 border-white/5 rounded-[2rem] focus:border-[#cc0000] outline-none transition-all text-2xl font-black italic uppercase text-white placeholder:text-slate-800"
-                  />
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Zona Geográfica</h2>
+                  <div className="space-y-4">
+                    <input
+                      type="text"
+                      placeholder="Ej. Fresia, Puerto Montt, Stgo Centro..."
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      className="w-full p-8 bg-white/5 border-2 border-white/5 rounded-[2rem] focus:border-[#cc0000] outline-none transition-all text-2xl font-black italic uppercase text-white placeholder:text-slate-800"
+                    />
+                    <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest ml-4">
+                      Esto permite a la IA analizar tasas de riesgo local.
+                    </p>
+                  </div>
                 </div>
               )}
 
               {currentStep === 5 && (
                 <div className="space-y-10">
-                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Nivel de <br/>Seguridad</h2>
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Nivel de <br/>Blindaje</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     {['Esencial', 'Corporativo', 'Elite'].map((label) => (
                       <button
@@ -349,7 +356,7 @@ export default function ProjectBuilder() {
                         className={`p-12 rounded-[2rem] border-2 transition-all text-center ${
                           formData.budget === label 
                             ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-xl' 
-                            : 'border-white/5 bg-white/2'
+                            : 'border-white/5 bg-white/2 hover:border-white/20'
                         }`}
                       >
                         <div className="font-black text-2xl text-white uppercase tracking-tighter italic">{label}</div>
@@ -376,7 +383,13 @@ export default function ProjectBuilder() {
               {currentStep < 5 ? (
                 <button
                   onClick={nextStep}
-                  className="px-12 py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-[#cc0000] hover:text-white transition-all shadow-xl flex items-center gap-2"
+                  disabled={
+                    (currentStep === 1 && !formData.businessType) ||
+                    (currentStep === 2 && !formData.size) ||
+                    (currentStep === 3 && formData.priorities.length === 0) ||
+                    (currentStep === 4 && !formData.location)
+                  }
+                  className="px-12 py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-[#cc0000] hover:text-white transition-all shadow-xl flex items-center gap-2 disabled:opacity-20"
                 >
                   Continuar <ChevronRight className="w-4 h-4" />
                 </button>
@@ -387,7 +400,7 @@ export default function ProjectBuilder() {
                   className="px-12 py-5 bg-[#cc0000] text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-red-700 transition-all shadow-lg flex items-center gap-3"
                 >
                   <Sparkles className="w-5 h-5" />
-                  Generar con IA
+                  Diseñar Proyecto IA
                 </button>
               )}
             </div>

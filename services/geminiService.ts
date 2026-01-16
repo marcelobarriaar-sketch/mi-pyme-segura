@@ -2,33 +2,33 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { ProjectConfig, SecurityRecommendation } from "../types.ts";
 
 export const generateSecurityProposal = async (config: ProjectConfig): Promise<SecurityRecommendation> => {
-  // Inicialización del cliente con la clave del entorno
+  // Inicialización con la API KEY inyectada
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  const userPrompt = `Genera un diseño técnico de seguridad para una Pyme con los siguientes parámetros:
-  - Sector: ${config.businessType}
-  - Tamaño: ${config.size}
+  const userPrompt = `Como Ingeniero Jefe de Mi Pyme Segura, diseña una solución técnica para:
+  - Tipo de Pyme: ${config.businessType}
+  - Superficie: ${config.size}
   - Prioridades: ${config.priorities.join(", ")}
-  - Nivel de Protección: ${config.budget}
-  - Ubicación: ${config.location}
+  - Nivel de Seguridad: ${config.budget}
+  - Ciudad/Zona: ${config.location}
   
-  Considera equipos disponibles en el mercado chileno y normativas de seguridad actuales.`;
+  Debes proponer hardware real (CCTV IP, Alarmas grado 2 o 3, etc.) y un cronograma de ejecución.`;
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: userPrompt,
+      model: "gemini-3-pro-preview", // Usamos Pro para mayor capacidad de diseño técnico
+      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
       config: {
-        systemInstruction: "Eres el Ingeniero Jefe de Diseño de 'Mi Pyme Segura'. Tu objetivo es crear propuestas técnicas de seguridad electrónica (CCTV, Alarma, Control de Acceso) altamente profesionales. Responde exclusivamente en formato JSON.",
+        systemInstruction: "Eres un experto senior en seguridad electrónica chileno. Generas diseños de proyectos de seguridad profesional. Responde EXCLUSIVAMENTE en formato JSON.",
         responseMimeType: "application/json",
-        maxOutputTokens: 2048,
-        thinkingConfig: { thinkingBudget: 512 },
+        maxOutputTokens: 4096,
+        thinkingConfig: { thinkingBudget: 1024 }, // Presupuesto para razonamiento técnico
         responseSchema: {
           type: Type.OBJECT,
           properties: {
             summary: { 
               type: Type.STRING, 
-              description: "Análisis estratégico de seguridad para el escenario propuesto." 
+              description: "Análisis estratégico y justificación técnica del diseño." 
             },
             recommendedHardware: {
               type: Type.ARRAY,
@@ -44,12 +44,10 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
             },
             implementationPlan: {
               type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: "Pasos tácticos para la ejecución del proyecto."
+              items: { type: Type.STRING }
             },
             estimatedTime: { 
-              type: Type.STRING,
-              description: "Tiempo estimado de entrega e instalación."
+              type: Type.STRING 
             }
           },
           required: ["summary", "recommendedHardware", "implementationPlan", "estimatedTime"]
@@ -57,14 +55,20 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
       }
     });
 
-    const output = response.text;
-    if (!output) throw new Error("Respuesta de IA nula.");
+    const text = response.text;
+    if (!text) throw new Error("No se recibió respuesta del cerebro IA.");
 
-    // Limpieza de posibles delimitadores de código
-    const cleanJson = output.replace(/```json/g, "").replace(/```/g, "").trim();
-    return JSON.parse(cleanJson) as SecurityRecommendation;
+    // Limpieza profunda de la respuesta para evitar errores de parseo
+    const cleanJson = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    
+    try {
+      return JSON.parse(cleanJson) as SecurityRecommendation;
+    } catch (parseError) {
+      console.error("Error al procesar JSON de IA:", text);
+      throw new Error("La respuesta de la IA no pudo ser procesada como un proyecto válido.");
+    }
   } catch (error) {
-    console.error("Error crítico en el motor de Mi Pyme Segura:", error);
+    console.error("Error en Gemini Service:", error);
     throw error;
   }
 };
