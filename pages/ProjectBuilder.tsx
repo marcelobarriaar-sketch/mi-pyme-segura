@@ -15,7 +15,9 @@ import {
   FileText,
   ShieldCheck,
   Mail,
-  Zap
+  Zap,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
 import { generateSecurityProposal } from '../services/geminiService.ts';
 import { ProjectConfig, SecurityRecommendation } from '../types.ts';
@@ -35,6 +37,7 @@ export default function ProjectBuilder() {
   const [loading, setLoading] = React.useState(false);
   const [sendingEmail, setSendingEmail] = React.useState(false);
   const [recommendation, setRecommendation] = React.useState<SecurityRecommendation | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
   
   const [formData, setFormData] = React.useState<ProjectConfig>({
     businessType: '',
@@ -54,16 +57,20 @@ export default function ProjectBuilder() {
   };
 
   const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 5));
-  const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
+  const prevStep = () => {
+    setError(null);
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
+    setError(null);
     try {
       const result = await generateSecurityProposal(formData);
       setRecommendation(result);
-    } catch (error) {
-      console.error("AI Generation Error:", error);
-      alert("Hubo un problema procesando su solicitud con IA. Verifique su conexión y vuelva a intentarlo.");
+    } catch (err: any) {
+      console.error("AI Generation Error:", err);
+      setError("No pudimos procesar tu diseño en este momento. Por favor, intenta nuevamente o contacta a soporte si el problema persiste.");
     } finally {
       setLoading(false);
     }
@@ -97,7 +104,7 @@ export default function ProjectBuilder() {
         `${stepsList}\n\n` +
         `VENTANA DE EJECUCIÓN ESTIMADA: ${recommendation.estimatedTime}\n\n` +
         `===============================================\n` +
-        `Solicito validación técnica para este diseño automatizado.`
+        `Este reporte sirve como base para la validación técnica en terreno.`
       );
 
       window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
@@ -174,7 +181,7 @@ export default function ProjectBuilder() {
               </div>
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                 <button 
-                  onClick={() => setRecommendation(null)}
+                  onClick={() => { setRecommendation(null); setError(null); }}
                   className="px-8 py-5 border-2 border-white/10 text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white/5 hover:text-white transition-all"
                 >
                   Reiniciar
@@ -186,9 +193,6 @@ export default function ProjectBuilder() {
                 >
                   {sendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
                   Enviar a mi Email
-                </button>
-                <button className="px-10 py-5 bg-[#cc0000] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-red-700 transition-all shadow-lg shadow-red-900/40 flex items-center justify-center gap-3">
-                  <Zap className="w-4 h-4 fill-current" /> Agendar Visita
                 </button>
               </div>
             </div>
@@ -229,169 +233,191 @@ export default function ProjectBuilder() {
         </div>
 
         <div className="bg-white/5 rounded-[2.5rem] shadow-2xl p-12 sm:p-20 min-h-[600px] flex flex-col justify-between border border-white/5 relative overflow-hidden backdrop-blur-md">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#cc0000]/5 rounded-bl-[5rem] -z-0"></div>
-          
-          <div className="relative z-10 animate-in fade-in slide-in-from-right-8 duration-500">
-            {currentStep === 1 && (
-              <div className="space-y-10">
-                <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Sector <br/>Económico</h2>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                  {[
-                    { id: 'comercio', label: 'Comercio', icon: Store },
-                    { id: 'oficina', label: 'Oficina', icon: Building2 },
-                    { id: 'industria', label: 'Logística', icon: Factory },
-                    { id: 'domicilio', label: 'Residencia', icon: HomeIcon }
-                  ].map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => setFormData({ ...formData, businessType: item.label })}
-                      className={`p-10 rounded-3xl border-2 transition-all flex flex-col items-center gap-6 ${
-                        formData.businessType === item.label 
-                          ? 'border-[#cc0000] bg-[#cc0000]/10 text-[#cc0000] shadow-2xl' 
-                          : 'border-white/5 hover:border-white/20 text-slate-500 bg-white/2'
-                      }`}
-                    >
-                      <item.icon className="w-10 h-10" />
-                      <span className="font-black uppercase tracking-widest text-[10px]">{item.label}</span>
-                    </button>
-                  ))}
+          {loading ? (
+            <div className="flex-grow flex flex-col items-center justify-center py-20 animate-pulse">
+               <div className="w-24 h-24 bg-[#cc0000]/10 rounded-full flex items-center justify-center mb-8 relative">
+                 <Loader2 className="w-12 h-12 text-[#cc0000] animate-spin" />
+                 <div className="absolute inset-0 border-4 border-[#cc0000] border-t-transparent rounded-full animate-[spin_3s_linear_infinite]"></div>
+               </div>
+               <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-4 text-center">Consultando Motor <br/><span className="text-[#cc0000]">Gemini Pro</span></h2>
+               <p className="text-slate-500 font-black uppercase tracking-widest text-[10px] animate-bounce">Analizando topografía y vectores de riesgo...</p>
+            </div>
+          ) : error ? (
+            <div className="flex-grow flex flex-col items-center justify-center py-20">
+               <div className="bg-red-900/20 p-8 rounded-[2rem] border border-red-500/20 text-center max-w-md">
+                 <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-6" />
+                 <h2 className="text-2xl font-black text-white uppercase italic mb-4">Error Operativo</h2>
+                 <p className="text-slate-400 font-medium mb-8 leading-relaxed">{error}</p>
+                 <button onClick={handleSubmit} className="flex items-center gap-3 bg-white text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] mx-auto hover:bg-[#cc0000] hover:text-white transition-all">
+                   <RefreshCw className="w-4 h-4" /> Reintentar Conexión
+                 </button>
+               </div>
+            </div>
+          ) : (
+            <div className="relative z-10 animate-in fade-in slide-in-from-right-8 duration-500">
+              {currentStep === 1 && (
+                <div className="space-y-10">
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Sector <br/>Económico</h2>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[
+                      { id: 'comercio', label: 'Comercio', icon: Store },
+                      { id: 'oficina', label: 'Oficina', icon: Building2 },
+                      { id: 'industria', label: 'Logística', icon: Factory },
+                      { id: 'domicilio', label: 'Residencia', icon: HomeIcon }
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setFormData({ ...formData, businessType: item.label })}
+                        className={`p-10 rounded-3xl border-2 transition-all flex flex-col items-center gap-6 ${
+                          formData.businessType === item.label 
+                            ? 'border-[#cc0000] bg-[#cc0000]/10 text-[#cc0000] shadow-2xl' 
+                            : 'border-white/5 hover:border-white/20 text-slate-500 bg-white/2'
+                        }`}
+                      >
+                        <item.icon className="w-10 h-10" />
+                        <span className="font-black uppercase tracking-widest text-[10px]">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {currentStep === 2 && (
-              <div className="space-y-10">
-                <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Dimensiones <br/>del Recinto</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {[
-                    { id: 'small', label: 'Compacto', desc: '< 150m²' },
-                    { id: 'medium', label: 'Intermedio', desc: '150 - 800m²' },
-                    { id: 'large', label: 'Masivo', desc: '> 800m²' }
-                  ].map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => setFormData({ ...formData, size: item.label })}
-                      className={`p-12 rounded-[2rem] border-2 transition-all text-center ${
-                        formData.size === item.label 
-                          ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-2xl' 
-                          : 'border-white/5 hover:border-white/20 bg-white/2'
-                      }`}
-                    >
-                      <div className="font-black text-2xl mb-2 text-white uppercase tracking-tighter italic">{item.label}</div>
-                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{item.desc}</div>
-                    </button>
-                  ))}
+              {currentStep === 2 && (
+                <div className="space-y-10">
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Dimensiones <br/>del Recinto</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[
+                      { id: 'small', label: 'Compacto', desc: '< 150m²' },
+                      { id: 'medium', label: 'Intermedio', desc: '150 - 800m²' },
+                      { id: 'large', label: 'Masivo', desc: '> 800m²' }
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setFormData({ ...formData, size: item.label })}
+                        className={`p-12 rounded-[2rem] border-2 transition-all text-center ${
+                          formData.size === item.label 
+                            ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-2xl' 
+                            : 'border-white/5 hover:border-white/20 bg-white/2'
+                        }`}
+                      >
+                        <div className="font-black text-2xl mb-2 text-white uppercase tracking-tighter italic">{item.label}</div>
+                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{item.desc}</div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {currentStep === 3 && (
-              <div className="space-y-10">
-                <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Matriz de <br/>Prioridades</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {[
-                    { id: 'robo', label: 'Protección de Activos', icon: Target },
-                    { id: 'monitoreo', label: 'Centralización de Video', icon: Camera },
-                    { id: 'intrusos', label: 'Respuesta ante Intrusos', icon: ShieldAlert },
-                    { id: 'incendio', label: 'Seguridad de Vida', icon: AlertTriangle }
-                  ].map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => handlePriorityToggle(item.label)}
-                      className={`p-8 rounded-[2rem] border-2 transition-all flex items-center gap-6 text-left ${
-                        formData.priorities.includes(item.label) 
-                          ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-2xl' 
-                          : 'border-white/5 hover:border-white/20 bg-white/2'
-                      }`}
-                    >
-                      <div className={`p-4 rounded-2xl ${formData.priorities.includes(item.label) ? 'bg-[#cc0000] text-white shadow-lg shadow-red-900/40' : 'bg-white/5 text-slate-600'}`}>
-                        <item.icon className="w-7 h-7" />
-                      </div>
-                      <span className="font-black text-white uppercase text-xs tracking-widest">{item.label}</span>
-                    </button>
-                  ))}
+              {currentStep === 3 && (
+                <div className="space-y-10">
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Matriz de <br/>Prioridades</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {[
+                      { id: 'robo', label: 'Protección de Activos', icon: Target },
+                      { id: 'monitoreo', label: 'Centralización de Video', icon: Camera },
+                      { id: 'intrusos', label: 'Respuesta ante Intrusos', icon: ShieldAlert },
+                      { id: 'incendio', label: 'Seguridad de Vida', icon: AlertTriangle }
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => handlePriorityToggle(item.label)}
+                        className={`p-8 rounded-[2rem] border-2 transition-all flex items-center gap-6 text-left ${
+                          formData.priorities.includes(item.label) 
+                            ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-2xl' 
+                            : 'border-white/5 hover:border-white/20 bg-white/2'
+                        }`}
+                      >
+                        <div className={`p-4 rounded-2xl ${formData.priorities.includes(item.label) ? 'bg-[#cc0000] text-white shadow-lg shadow-red-900/40' : 'bg-white/5 text-slate-600'}`}>
+                          <item.icon className="w-7 h-7" />
+                        </div>
+                        <span className="font-black text-white uppercase text-xs tracking-widest">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {currentStep === 4 && (
-              <div className="space-y-10">
-                <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Ubicación <br/>Geográfica</h2>
-                <div className="space-y-6">
-                  <input
-                    type="text"
-                    placeholder="Ej. Vitacura, Quilicura, Concepción..."
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full p-8 bg-white/5 border-2 border-white/5 rounded-[2rem] focus:border-[#cc0000] outline-none transition-all text-2xl font-black italic uppercase tracking-tighter text-white placeholder:text-slate-700"
-                  />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Nuestro algoritmo cruza datos con las tasas de incidencia local para optimizar el equipamiento.</p>
+              {currentStep === 4 && (
+                <div className="space-y-10">
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Ubicación <br/>Geográfica</h2>
+                  <div className="space-y-6">
+                    <input
+                      type="text"
+                      placeholder="Ej. Vitacura, Quilicura, Concepción..."
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      className="w-full p-8 bg-white/5 border-2 border-white/5 rounded-[2rem] focus:border-[#cc0000] outline-none transition-all text-2xl font-black italic uppercase tracking-tighter text-white placeholder:text-slate-700"
+                    />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Nuestro algoritmo cruza datos con las tasas de incidencia local para optimizar el equipamiento.</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {currentStep === 5 && (
-              <div className="space-y-10">
-                <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Nivel de <br/>Protección</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  {[
-                    { id: 'eco', label: 'Esencial', desc: 'Funcionalidad Básica' },
-                    { id: 'std', label: 'Avanzado', desc: 'Estándar Corporativo' },
-                    { id: 'pro', label: 'Elite', desc: 'Grado Militar / Analítica' }
-                  ].map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => setFormData({ ...formData, budget: item.label })}
-                      className={`p-12 rounded-[2rem] border-2 transition-all text-center ${
-                        formData.budget === item.label 
-                          ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-2xl' 
-                          : 'border-white/5 hover:border-white/20 bg-white/2'
-                      }`}
-                    >
-                      <div className="font-black text-2xl mb-2 text-white uppercase tracking-tighter italic">{item.label}</div>
-                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{item.desc}</div>
-                    </button>
-                  ))}
+              {currentStep === 5 && (
+                <div className="space-y-10">
+                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Nivel de <br/>Protección</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    {[
+                      { id: 'eco', label: 'Esencial', desc: 'Funcionalidad Básica' },
+                      { id: 'std', label: 'Avanzado', desc: 'Estándar Corporativo' },
+                      { id: 'pro', label: 'Elite', desc: 'Grado Militar / Analítica' }
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setFormData({ ...formData, budget: item.label })}
+                        className={`p-12 rounded-[2rem] border-2 transition-all text-center ${
+                          formData.budget === item.label 
+                            ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-2xl' 
+                            : 'border-white/5 hover:border-white/20 bg-white/2'
+                        }`}
+                      >
+                        <div className="font-black text-2xl mb-2 text-white uppercase tracking-tighter italic">{item.label}</div>
+                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{item.desc}</div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
-          <div className="flex justify-between pt-16 mt-16 border-t border-white/5 relative z-10">
-            <button
-              onClick={prevStep}
-              disabled={currentStep === 1}
-              className={`px-10 py-4 font-black uppercase tracking-widest text-xs transition-all ${
-                currentStep === 1 ? 'opacity-0 pointer-events-none' : 'text-slate-500 hover:text-white'
-              }`}
-            >
-              Regresar
-            </button>
-            
-            {currentStep < 5 ? (
+          {!loading && !error && (
+            <div className="flex justify-between pt-16 mt-16 border-t border-white/5 relative z-10">
               <button
-                onClick={nextStep}
-                disabled={
-                  (currentStep === 1 && !formData.businessType) ||
-                  (currentStep === 2 && !formData.size) ||
-                  (currentStep === 3 && formData.priorities.length === 0) ||
-                  (currentStep === 4 && !formData.location)
-                }
-                className="px-12 py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-[#cc0000] hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white/10 shadow-2xl"
+                onClick={prevStep}
+                disabled={currentStep === 1}
+                className={`px-10 py-4 font-black uppercase tracking-widest text-xs transition-all ${
+                  currentStep === 1 ? 'opacity-0 pointer-events-none' : 'text-slate-500 hover:text-white'
+                }`}
               >
-                Continuar
+                Regresar
               </button>
-            ) : (
-              <button
-                onClick={handleSubmit}
-                disabled={loading || !formData.budget}
-                className="px-12 py-5 bg-[#cc0000] text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-red-700 transition-all shadow-lg shadow-red-900/40 flex items-center gap-3"
-              >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                Generar Propuesta IA
-              </button>
-            )}
-          </div>
+              
+              {currentStep < 5 ? (
+                <button
+                  onClick={nextStep}
+                  disabled={
+                    (currentStep === 1 && !formData.businessType) ||
+                    (currentStep === 2 && !formData.size) ||
+                    (currentStep === 3 && formData.priorities.length === 0) ||
+                    (currentStep === 4 && !formData.location)
+                  }
+                  className="px-12 py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-[#cc0000] hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white/10 shadow-2xl"
+                >
+                  Continuar
+                </button>
+              ) : (
+                <button
+                  onClick={handleSubmit}
+                  disabled={!formData.budget}
+                  className="px-12 py-5 bg-[#cc0000] text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-red-700 transition-all shadow-lg shadow-red-900/40 flex items-center gap-3"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  Generar Propuesta IA
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
