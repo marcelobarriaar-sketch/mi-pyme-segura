@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useData } from '../context/DataContext.tsx';
-import { Mail, Phone, MapPin, Send, MessageSquare, ShieldCheck, Zap, Loader2, CheckCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, ShieldCheck, Zap, Loader2, CheckCircle } from 'lucide-react';
 
 export default function Contact() {
   const { settings } = useData();
@@ -17,25 +17,27 @@ export default function Contact() {
     e.preventDefault();
     setLoading(true);
 
-    // Simulamos un proceso de envío técnico
+    // Simulación de procesamiento de datos tácticos
     setTimeout(() => {
       const subject = encodeURIComponent(`NUEVA CONSULTA TÁCTICA: ${formData.name}`);
       const body = encodeURIComponent(
-        `Detalles del Lead:\n` +
-        `--------------------------\n` +
-        `Nombre: ${formData.name}\n` +
-        `Email de contacto: ${formData.email}\n\n` +
-        `Mensaje:\n${formData.message}\n` +
-        `--------------------------\n` +
-        `Enviado desde el portal de Mi Pyme Segura.`
+        `REPORTE DE CONTACTO - MI PYME SEGURA\n` +
+        `====================================\n\n` +
+        `DATOS DEL INTERESADO:\n` +
+        `- Nombre: ${formData.name}\n` +
+        `- Email de Respuesta: ${formData.email}\n\n` +
+        `MENSAJE / REQUERIMIENTOS:\n` +
+        `${formData.message}\n\n` +
+        `====================================\n` +
+        `Enviado desde el portal oficial Mi Pyme Segura.`
       );
 
-      // Abrimos el cliente de correo con los datos pre-cargados
+      // Abrimos el cliente de correo predeterminado
       window.location.href = `mailto:${settings.contactRecipient}?subject=${subject}&body=${body}`;
       
       setLoading(false);
       setSubmitted(true);
-    }, 1200);
+    }, 1000);
   };
 
   return (
@@ -47,13 +49,13 @@ export default function Contact() {
               <span className="text-[#cc0000] font-black uppercase tracking-[0.4em] text-[10px] mb-6 block">Enlace Operativo</span>
               <h1 className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none mb-10 italic">Canales <br/><span className="text-[#cc0000]">Tácticos</span></h1>
               <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-lg">
-                Nuestros especialistas están disponibles para coordinar levantamientos técnicos en terreno.
+                Nuestros especialistas están disponibles para coordinar levantamientos técnicos en terreno en toda la región.
               </p>
             </div>
             
             <div className="space-y-10">
               <div className="flex items-center gap-6 group">
-                <div className="bg-white/5 p-6 rounded-[2rem] group-hover:bg-[#cc0000] transition-all border border-white/5">
+                <div className="bg-white/5 p-6 rounded-[2rem] group-hover:bg-[#cc0000] transition-all border border-white/5 shadow-xl shadow-black/20">
                   <MapPin className="w-8 h-8 text-white" />
                 </div>
                 <div>
@@ -62,7 +64,7 @@ export default function Contact() {
                 </div>
               </div>
               <div className="flex items-center gap-6 group">
-                <div className="bg-white/5 p-6 rounded-[2rem] group-hover:bg-[#cc0000] transition-all border border-white/5">
+                <div className="bg-white/5 p-6 rounded-[2rem] group-hover:bg-[#cc0000] transition-all border border-white/5 shadow-xl shadow-black/20">
                   <Phone className="w-8 h-8 text-white" />
                 </div>
                 <div>
@@ -71,7 +73,7 @@ export default function Contact() {
                 </div>
               </div>
               <div className="flex items-center gap-6 group">
-                <div className="bg-white/5 p-6 rounded-[2rem] group-hover:bg-[#cc0000] transition-all border border-white/5">
+                <div className="bg-white/5 p-6 rounded-[2rem] group-hover:bg-[#cc0000] transition-all border border-white/5 shadow-xl shadow-black/20">
                   <Mail className="w-8 h-8 text-white" />
                 </div>
                 <div>
@@ -82,15 +84,15 @@ export default function Contact() {
             </div>
           </div>
 
-          <div className="bg-white/5 p-12 md:p-20 rounded-[3.5rem] border border-white/5 backdrop-blur-md self-start">
+          <div className="bg-white/5 p-12 md:p-20 rounded-[3.5rem] border border-white/5 backdrop-blur-md self-start shadow-2xl">
             {submitted ? (
               <div className="text-center py-20 animate-in zoom-in duration-500">
                 <div className="bg-[#cc0000] w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-10 shadow-2xl">
                   <CheckCircle className="w-10 h-10 text-white" />
                 </div>
                 <h2 className="text-4xl font-black text-white mb-4 uppercase tracking-tighter italic">Solicitud <br/>Transmitida</h2>
-                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] max-w-xs mx-auto">Se ha abierto tu cliente de correo para finalizar el envío.</p>
-                <button onClick={() => setSubmitted(false)} className="mt-12 text-amber-400 font-black uppercase tracking-widest text-[10px] hover:underline">Nueva Solicitud</button>
+                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] max-w-xs mx-auto">Se ha abierto tu cliente de correo con los datos pre-cargados para finalizar el envío.</p>
+                <button onClick={() => setSubmitted(false)} className="mt-12 text-amber-400 font-black uppercase tracking-widest text-[10px] hover:underline">Nueva Consulta</button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-10">
@@ -101,7 +103,7 @@ export default function Contact() {
                   <input 
                     placeholder="Nombre Completo" 
                     required 
-                    className="w-full p-5 bg-white/5 rounded-2xl border-2 border-white/5 focus:border-[#cc0000] outline-none font-bold text-white transition-all"
+                    className="w-full p-5 bg-white/5 rounded-2xl border-2 border-white/5 focus:border-[#cc0000] outline-none font-bold text-white transition-all placeholder:text-slate-700"
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
                   />
@@ -109,7 +111,7 @@ export default function Contact() {
                     type="email" 
                     placeholder="Email de contacto" 
                     required 
-                    className="w-full p-5 bg-white/5 rounded-2xl border-2 border-white/5 focus:border-[#cc0000] outline-none font-bold text-white transition-all"
+                    className="w-full p-5 bg-white/5 rounded-2xl border-2 border-white/5 focus:border-[#cc0000] outline-none font-bold text-white transition-all placeholder:text-slate-700"
                     value={formData.email}
                     onChange={e => setFormData({...formData, email: e.target.value})}
                   />
@@ -117,7 +119,7 @@ export default function Contact() {
                     rows={4} 
                     placeholder="Describe tus necesidades de seguridad..." 
                     required 
-                    className="w-full p-5 bg-white/5 rounded-2xl border-2 border-white/5 focus:border-[#cc0000] outline-none font-bold text-white transition-all resize-none"
+                    className="w-full p-5 bg-white/5 rounded-2xl border-2 border-white/5 focus:border-[#cc0000] outline-none font-bold text-white transition-all resize-none placeholder:text-slate-700"
                     value={formData.message}
                     onChange={e => setFormData({...formData, message: e.target.value})}
                   ></textarea>

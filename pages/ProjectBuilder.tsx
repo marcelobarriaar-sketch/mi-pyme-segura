@@ -74,28 +74,34 @@ export default function ProjectBuilder() {
     setSendingEmail(true);
 
     setTimeout(() => {
-      const subject = encodeURIComponent(`DISEÑO DE PROYECTO IA: ${formData.businessType} - ${formData.location}`);
+      const subject = encodeURIComponent(`REPORTE DE PROYECTO IA: ${formData.businessType} - ${formData.location}`);
       
-      let hardwareList = recommendation.recommendedHardware.map(hw => `- [${hw.quantity}] ${hw.item}: ${hw.description}`).join('\n');
+      let hardwareList = recommendation.recommendedHardware.map(hw => `• [CANT: ${hw.quantity}] ${hw.item}: ${hw.description}`).join('\n');
       let stepsList = recommendation.implementationPlan.map((p, i) => `${i+1}. ${p}`).join('\n');
 
       const body = encodeURIComponent(
-        `PROPUESTA TÉCNICA GENERADA POR IA - MI PYME SEGURA\n` +
+        `DISEÑO TÉCNICO GENERADO POR INTELIGENCIA ARTIFICIAL\n` +
+        `SISTEMA DE SEGURIDAD - MI PYME SEGURA\n` +
         `===============================================\n\n` +
-        `DATOS DEL ESCENARIO:\n` +
-        `- Sector: ${formData.businessType}\n` +
-        `- Tamaño: ${formData.size}\n` +
-        `- Ubicación: ${formData.location}\n` +
-        `- Prioridades: ${formData.priorities.join(', ')}\n` +
-        `- Nivel deseado: ${formData.budget}\n\n` +
-        `RESUMEN EJECUTIVO:\n${recommendation.summary}\n\n` +
-        `EQUIPAMIENTO RECOMENDADO:\n${hardwareList}\n\n` +
-        `PLAN DE ACCIÓN:\n${stepsList}\n\n` +
-        `TIEMPO ESTIMADO: ${recommendation.estimatedTime}\n\n` +
+        `DETALLES DEL ESCENARIO ANALIZADO:\n` +
+        `- Industria/Sector: ${formData.businessType}\n` +
+        `- Escala del Recinto: ${formData.size}\n` +
+        `- Ubicación Táctica: ${formData.location}\n` +
+        `- Matriz de Prioridad: ${formData.priorities.join(', ')}\n` +
+        `- Nivel de Blindaje Deseado: ${formData.budget}\n\n` +
+        `AUDITORÍA EJECUTIVA:\n` +
+        `${recommendation.summary}\n\n` +
+        `INVENTARIO TÉCNICO RECOMENDADO:\n` +
+        `${hardwareList}\n\n` +
+        `PLAN OPERATIVO DE IMPLEMENTACIÓN:\n` +
+        `${stepsList}\n\n` +
+        `VENTANA ESTIMADA DE INSTALACIÓN:\n` +
+        `${recommendation.estimatedTime}\n\n` +
         `===============================================\n` +
-        `Solicito validación técnica y presupuesto formal para este diseño.`
+        `Este reporte sirve como base técnica para la cotización formal y validación de factibilidad en terreno.`
       );
 
+      // Enlace directo al receptor de leads
       window.location.href = `mailto:${settings.contactRecipient}?subject=${subject}&body=${body}`;
       setSendingEmail(false);
     }, 1000);
@@ -181,10 +187,10 @@ export default function ProjectBuilder() {
                   className="px-8 py-5 bg-amber-400 text-black rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-500 transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50"
                 >
                   {sendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
-                  Enviar a mi Email
+                  Enviar Propuesta a Soporte
                 </button>
                 <button className="px-10 py-5 bg-[#cc0000] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-red-700 transition-all shadow-lg shadow-red-900/40 flex items-center justify-center gap-3">
-                  <Zap className="w-4 h-4 fill-current" /> Agendar Visita
+                  <Zap className="w-4 h-4 fill-current" /> Agendar Visita en Terreno
                 </button>
               </div>
             </div>
