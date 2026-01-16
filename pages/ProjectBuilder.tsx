@@ -62,8 +62,8 @@ export default function ProjectBuilder() {
       const result = await generateSecurityProposal(formData);
       setRecommendation(result);
     } catch (error) {
-      console.error("Error generating proposal:", error);
-      alert("Error en el motor de IA. Inténtelo nuevamente.");
+      console.error("AI Generation Error:", error);
+      alert("Hubo un problema procesando su solicitud con IA. Verifique su conexión y vuelva a intentarlo.");
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export default function ProjectBuilder() {
         `${stepsList}\n\n` +
         `VENTANA DE EJECUCIÓN ESTIMADA: ${recommendation.estimatedTime}\n\n` +
         `===============================================\n` +
-        `Este reporte sirve como base para la validación técnica en terreno.`
+        `Solicito validación técnica para este diseño automatizado.`
       );
 
       window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
