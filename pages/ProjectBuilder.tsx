@@ -97,10 +97,9 @@ export default function ProjectBuilder() {
         `${stepsList}\n\n` +
         `VENTANA DE EJECUCIÓN ESTIMADA: ${recommendation.estimatedTime}\n\n` +
         `===============================================\n` +
-        `Solicito contacto formal para validación de factibilidad y presupuesto.`
+        `Este reporte sirve como base para la validación técnica en terreno.`
       );
 
-      // Apertura de mail individualizado
       window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
       setSendingEmail(false);
     }, 1000);
@@ -186,10 +185,10 @@ export default function ProjectBuilder() {
                   className="px-8 py-5 bg-amber-400 text-black rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-500 transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50"
                 >
                   {sendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
-                  Enviar Propuesta a Soporte
+                  Enviar a mi Email
                 </button>
                 <button className="px-10 py-5 bg-[#cc0000] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-red-700 transition-all shadow-lg shadow-red-900/40 flex items-center justify-center gap-3">
-                  <Zap className="w-4 h-4 fill-current" /> Agendar Visita en Terreno
+                  <Zap className="w-4 h-4 fill-current" /> Agendar Visita
                 </button>
               </div>
             </div>
@@ -208,7 +207,7 @@ export default function ProjectBuilder() {
           <p className="text-xl text-slate-400 font-medium">Configure sus requerimientos para una auditoría preliminar automatizada.</p>
         </div>
 
-        {/* Stepper (omitted for brevity) */}
+        {/* Stepper */}
         <div className="mb-24 flex justify-between items-center relative max-w-3xl mx-auto">
           <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[1px] bg-white/10 z-0"></div>
           <div 
@@ -230,10 +229,10 @@ export default function ProjectBuilder() {
         </div>
 
         <div className="bg-white/5 rounded-[2.5rem] shadow-2xl p-12 sm:p-20 min-h-[600px] flex flex-col justify-between border border-white/5 relative overflow-hidden backdrop-blur-md">
-          {/* Step content based on currentStep... (matches previous version) */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#cc0000]/5 rounded-bl-[5rem] -z-0"></div>
+          
           <div className="relative z-10 animate-in fade-in slide-in-from-right-8 duration-500">
-             {/* Current step rendering logic */}
-             {currentStep === 1 && (
+            {currentStep === 1 && (
               <div className="space-y-10">
                 <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Sector <br/>Económico</h2>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -259,16 +258,135 @@ export default function ProjectBuilder() {
                 </div>
               </div>
             )}
-            {/* Steps 2-5 (omitted for brevity, maintained in full state) */}
-            {currentStep > 1 && <div className="text-white font-black italic">Proceda al paso {currentStep} de 5...</div>}
+
+            {currentStep === 2 && (
+              <div className="space-y-10">
+                <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Dimensiones <br/>del Recinto</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    { id: 'small', label: 'Compacto', desc: '< 150m²' },
+                    { id: 'medium', label: 'Intermedio', desc: '150 - 800m²' },
+                    { id: 'large', label: 'Masivo', desc: '> 800m²' }
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setFormData({ ...formData, size: item.label })}
+                      className={`p-12 rounded-[2rem] border-2 transition-all text-center ${
+                        formData.size === item.label 
+                          ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-2xl' 
+                          : 'border-white/5 hover:border-white/20 bg-white/2'
+                      }`}
+                    >
+                      <div className="font-black text-2xl mb-2 text-white uppercase tracking-tighter italic">{item.label}</div>
+                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{item.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {currentStep === 3 && (
+              <div className="space-y-10">
+                <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Matriz de <br/>Prioridades</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {[
+                    { id: 'robo', label: 'Protección de Activos', icon: Target },
+                    { id: 'monitoreo', label: 'Centralización de Video', icon: Camera },
+                    { id: 'intrusos', label: 'Respuesta ante Intrusos', icon: ShieldAlert },
+                    { id: 'incendio', label: 'Seguridad de Vida', icon: AlertTriangle }
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handlePriorityToggle(item.label)}
+                      className={`p-8 rounded-[2rem] border-2 transition-all flex items-center gap-6 text-left ${
+                        formData.priorities.includes(item.label) 
+                          ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-2xl' 
+                          : 'border-white/5 hover:border-white/20 bg-white/2'
+                      }`}
+                    >
+                      <div className={`p-4 rounded-2xl ${formData.priorities.includes(item.label) ? 'bg-[#cc0000] text-white shadow-lg shadow-red-900/40' : 'bg-white/5 text-slate-600'}`}>
+                        <item.icon className="w-7 h-7" />
+                      </div>
+                      <span className="font-black text-white uppercase text-xs tracking-widest">{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {currentStep === 4 && (
+              <div className="space-y-10">
+                <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Ubicación <br/>Geográfica</h2>
+                <div className="space-y-6">
+                  <input
+                    type="text"
+                    placeholder="Ej. Vitacura, Quilicura, Concepción..."
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    className="w-full p-8 bg-white/5 border-2 border-white/5 rounded-[2rem] focus:border-[#cc0000] outline-none transition-all text-2xl font-black italic uppercase tracking-tighter text-white placeholder:text-slate-700"
+                  />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Nuestro algoritmo cruza datos con las tasas de incidencia local para optimizar el equipamiento.</p>
+                </div>
+              </div>
+            )}
+
+            {currentStep === 5 && (
+              <div className="space-y-10">
+                <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none italic">Nivel de <br/>Protección</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  {[
+                    { id: 'eco', label: 'Esencial', desc: 'Funcionalidad Básica' },
+                    { id: 'std', label: 'Avanzado', desc: 'Estándar Corporativo' },
+                    { id: 'pro', label: 'Elite', desc: 'Grado Militar / Analítica' }
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setFormData({ ...formData, budget: item.label })}
+                      className={`p-12 rounded-[2rem] border-2 transition-all text-center ${
+                        formData.budget === item.label 
+                          ? 'border-[#cc0000] bg-[#cc0000]/10 shadow-2xl' 
+                          : 'border-white/5 hover:border-white/20 bg-white/2'
+                      }`}
+                    >
+                      <div className="font-black text-2xl mb-2 text-white uppercase tracking-tighter italic">{item.label}</div>
+                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{item.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-between pt-16 mt-16 border-t border-white/5 relative z-10">
-            <button onClick={prevStep} disabled={currentStep === 1} className="px-10 py-4 font-black uppercase tracking-widest text-xs text-slate-500 hover:text-white disabled:opacity-0 transition-all">Regresar</button>
+            <button
+              onClick={prevStep}
+              disabled={currentStep === 1}
+              className={`px-10 py-4 font-black uppercase tracking-widest text-xs transition-all ${
+                currentStep === 1 ? 'opacity-0 pointer-events-none' : 'text-slate-500 hover:text-white'
+              }`}
+            >
+              Regresar
+            </button>
+            
             {currentStep < 5 ? (
-              <button onClick={nextStep} className="px-12 py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-[#cc0000] hover:text-white transition-all shadow-2xl">Continuar</button>
+              <button
+                onClick={nextStep}
+                disabled={
+                  (currentStep === 1 && !formData.businessType) ||
+                  (currentStep === 2 && !formData.size) ||
+                  (currentStep === 3 && formData.priorities.length === 0) ||
+                  (currentStep === 4 && !formData.location)
+                }
+                className="px-12 py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-[#cc0000] hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white/10 shadow-2xl"
+              >
+                Continuar
+              </button>
             ) : (
-              <button onClick={handleSubmit} disabled={loading} className="px-12 py-5 bg-[#cc0000] text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-red-700 transition-all shadow-lg flex items-center gap-3">
+              <button
+                onClick={handleSubmit}
+                disabled={loading || !formData.budget}
+                className="px-12 py-5 bg-[#cc0000] text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-red-700 transition-all shadow-lg shadow-red-900/40 flex items-center gap-3"
+              >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
                 Generar Propuesta IA
               </button>
