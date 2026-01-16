@@ -13,10 +13,13 @@ import {
   Loader2,
   CheckCircle,
   FileText,
-  ShieldCheck
+  ShieldCheck,
+  Mail,
+  Zap
 } from 'lucide-react';
 import { generateSecurityProposal } from '../services/geminiService.ts';
 import { ProjectConfig, SecurityRecommendation } from '../types.ts';
+import { useData } from '../context/DataContext.tsx';
 
 const steps = [
   { id: 1, title: 'Sector' },
@@ -27,8 +30,10 @@ const steps = [
 ];
 
 export default function ProjectBuilder() {
+  const { settings } = useData();
   const [currentStep, setCurrentStep] = React.useState(1);
   const [loading, setLoading] = React.useState(false);
+  const [sendingEmail, setSendingEmail] = React.useState(false);
   const [recommendation, setRecommendation] = React.useState<SecurityRecommendation | null>(null);
   
   const [formData, setFormData] = React.useState<ProjectConfig>({
@@ -62,6 +67,38 @@ export default function ProjectBuilder() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSendProposalEmail = () => {
+    if (!recommendation) return;
+    setSendingEmail(true);
+
+    setTimeout(() => {
+      const subject = encodeURIComponent(`DISEÑO DE PROYECTO IA: ${formData.businessType} - ${formData.location}`);
+      
+      let hardwareList = recommendation.recommendedHardware.map(hw => `- [${hw.quantity}] ${hw.item}: ${hw.description}`).join('\n');
+      let stepsList = recommendation.implementationPlan.map((p, i) => `${i+1}. ${p}`).join('\n');
+
+      const body = encodeURIComponent(
+        `PROPUESTA TÉCNICA GENERADA POR IA - MI PYME SEGURA\n` +
+        `===============================================\n\n` +
+        `DATOS DEL ESCENARIO:\n` +
+        `- Sector: ${formData.businessType}\n` +
+        `- Tamaño: ${formData.size}\n` +
+        `- Ubicación: ${formData.location}\n` +
+        `- Prioridades: ${formData.priorities.join(', ')}\n` +
+        `- Nivel deseado: ${formData.budget}\n\n` +
+        `RESUMEN EJECUTIVO:\n${recommendation.summary}\n\n` +
+        `EQUIPAMIENTO RECOMENDADO:\n${hardwareList}\n\n` +
+        `PLAN DE ACCIÓN:\n${stepsList}\n\n` +
+        `TIEMPO ESTIMADO: ${recommendation.estimatedTime}\n\n` +
+        `===============================================\n` +
+        `Solicito validación técnica y presupuesto formal para este diseño.`
+      );
+
+      window.location.href = `mailto:${settings.contactRecipient}?subject=${subject}&body=${body}`;
+      setSendingEmail(false);
+    }, 1000);
   };
 
   if (recommendation) {
@@ -131,15 +168,23 @@ export default function ProjectBuilder() {
                 <p className="text-xs font-black text-slate-600 uppercase tracking-widest mb-1">Ventana de ejecución</p>
                 <p className="text-3xl font-black text-white italic">{recommendation.estimatedTime}</p>
               </div>
-              <div className="flex gap-4 w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                 <button 
                   onClick={() => setRecommendation(null)}
-                  className="px-10 py-5 border-2 border-white/10 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-white hover:text-black transition-all flex-1 sm:flex-none"
+                  className="px-8 py-5 border-2 border-white/10 text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white/5 hover:text-white transition-all"
                 >
                   Reiniciar
                 </button>
-                <button className="px-10 py-5 bg-[#cc0000] text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-red-700 transition-all shadow-lg shadow-red-900/40 flex-1 sm:flex-none">
-                  Agendar Visita
+                <button 
+                  onClick={handleSendProposalEmail}
+                  disabled={sendingEmail}
+                  className="px-8 py-5 bg-amber-400 text-black rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-500 transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50"
+                >
+                  {sendingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+                  Enviar a mi Email
+                </button>
+                <button className="px-10 py-5 bg-[#cc0000] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-red-700 transition-all shadow-lg shadow-red-900/40 flex items-center justify-center gap-3">
+                  <Zap className="w-4 h-4 fill-current" /> Agendar Visita
                 </button>
               </div>
             </div>

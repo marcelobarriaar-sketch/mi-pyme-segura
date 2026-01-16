@@ -37,6 +37,7 @@ interface GlobalSettings {
   address: string;
   heroTitle: string;
   heroSubtitle: string;
+  contactRecipient: string;
   instagram?: string;
   facebook?: string;
 }
@@ -98,7 +99,8 @@ const initialSettings: GlobalSettings = {
   email: "contacto@mipymesegura.cl",
   address: "San Martín 267, Fresia, Chile",
   heroTitle: "TU NEGOCIO, BAJO LLAVE",
-  heroSubtitle: "Arquitectura de seguridad proactiva. Diseñamos sistemas inteligentes con rastreo en tiempo real que blindan tu patrimonio."
+  heroSubtitle: "Arquitectura de seguridad proactiva. Diseñamos sistemas inteligentes con rastreo en tiempo real que blindan tu patrimonio.",
+  contactRecipient: "gerencia@mipymesegura.cl"
 };
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -121,7 +123,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const saved = localStorage.getItem('mps_settings');
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Mergear con iniciales por si faltan campos nuevos
       return { ...initialSettings, ...parsed };
     }
     return initialSettings;

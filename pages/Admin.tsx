@@ -7,7 +7,7 @@ import {
   CheckCircle, Info, AlertCircle,
   FileText, History, Video, Download, Upload, Database,
   Users, Sun, Wifi, Cpu, Eye, Shield, Zap, Satellite, Activity,
-  Layout
+  Layout, Mail
 } from 'lucide-react';
 
 const valueIcons: Record<string, any> = {
@@ -316,11 +316,20 @@ export default function Admin() {
                 </div>
               </div>
 
-              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Settings className="text-[#cc0000]" /> Contacto Global</h2>
+              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Mail className="text-[#cc0000]" /> Canales de Consulta</h2>
+              <div className="space-y-6 mb-12">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Destinatario Leads/IA</label>
+                  <input value={settingsForm.contactRecipient} onChange={e => setSettingsForm({...settingsForm, contactRecipient: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-amber-400 font-bold" placeholder="Email donde recibirás los proyectos" />
+                  <p className="text-[9px] text-slate-500 ml-1">A este correo llegarán los formularios de contacto y diseños de IA.</p>
+                </div>
+              </div>
+
+              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Settings className="text-[#cc0000]" /> Contacto Global Público</h2>
               <div className="space-y-6">
                 <input value={settingsForm.address} onChange={e => setSettingsForm({...settingsForm, address: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" placeholder="Dirección" />
                 <input value={settingsForm.phone} onChange={e => setSettingsForm({...settingsForm, phone: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" placeholder="Teléfono" />
-                <input value={settingsForm.email} onChange={e => setSettingsForm({...settingsForm, email: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" placeholder="Email" />
+                <input value={settingsForm.email} onChange={e => setSettingsForm({...settingsForm, email: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" placeholder="Email Público" />
                 <button onClick={() => { updateSettings(settingsForm); alert('Sincronizado'); }} className="w-full bg-[#cc0000] text-white py-5 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-900/40"><Save className="w-4 h-4 inline-block mr-2" /> Sincronizar Sistema</button>
               </div>
             </div>

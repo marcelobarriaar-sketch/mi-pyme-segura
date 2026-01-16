@@ -3,15 +3,8 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { ProjectConfig, SecurityRecommendation } from "../types.ts";
 
 export const generateSecurityProposal = async (config: ProjectConfig): Promise<SecurityRecommendation> => {
-  // Obtenemos la API Key de forma segura, verificando si el objeto process existe
-  const apiKey = (typeof process !== 'undefined' && process.env.API_KEY) || '';
-
-  if (!apiKey) {
-    throw new Error("ERROR_SISTEMA: API Key no configurada. Revise las variables de entorno en Vercel.");
-  }
-
-  // Inicializamos el cliente justo antes de usarlo para asegurar que use el contexto más reciente
-  const ai = new GoogleGenAI({ apiKey });
+  // Use process.env.API_KEY directly as per SDK requirements
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const prompt = `Actúa como un experto consultor en seguridad electrónica para PYMES en Chile. 
   Genera una propuesta técnica personalizada para "Mi Pyme Segura" basada en los siguientes datos del cliente:
@@ -24,7 +17,8 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
   La propuesta debe ser profesional, realista y enfocada en la prevención de delitos comunes en negocios locales.`;
 
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    // Using gemini-3-pro-preview for advanced reasoning and proposal generation
+    model: "gemini-3-pro-preview",
     contents: prompt,
     config: {
       responseMimeType: "application/json",
@@ -56,6 +50,7 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
     }
   });
 
+  // Extract text property directly from response
   const resultText = response.text || "{}";
   return JSON.parse(resultText) as SecurityRecommendation;
 };
