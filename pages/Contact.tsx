@@ -17,27 +17,30 @@ export default function Contact() {
     e.preventDefault();
     setLoading(true);
 
-    // Simulación de procesamiento de datos tácticos
+    // Formateo profesional para el destinatario operativo (individualizado)
     setTimeout(() => {
-      const subject = encodeURIComponent(`NUEVA CONSULTA TÁCTICA: ${formData.name}`);
+      const recipient = settings.contactRecipient || settings.email;
+      const subject = encodeURIComponent(`[LEAD WEB] Nueva Consulta Táctica: ${formData.name}`);
       const body = encodeURIComponent(
-        `REPORTE DE CONTACTO - MI PYME SEGURA\n` +
+        `REPORTE DE CONTACTO INDIVIDUALIZADO\n` +
         `====================================\n\n` +
-        `DATOS DEL INTERESADO:\n` +
-        `- Nombre: ${formData.name}\n` +
-        `- Email de Respuesta: ${formData.email}\n\n` +
-        `MENSAJE / REQUERIMIENTOS:\n` +
-        `${formData.message}\n\n` +
-        `====================================\n` +
-        `Enviado desde el portal oficial Mi Pyme Segura.`
+        `DETALLES DEL CLIENTE:\n` +
+        `- NOMBRE: ${formData.name}\n` +
+        `- EMAIL DE CONTACTO: ${formData.email}\n` +
+        `- FECHA: ${new Date().toLocaleString()}\n\n` +
+        `MENSAJE DEL INTERESADO:\n` +
+        `------------------------------------\n` +
+        `${formData.message}\n` +
+        `------------------------------------\n\n` +
+        `Este lead fue generado automáticamente desde el portal oficial de Mi Pyme Segura.`
       );
 
-      // Abrimos el cliente de correo predeterminado
-      window.location.href = `mailto:${settings.contactRecipient}?subject=${subject}&body=${body}`;
+      // Lanzamiento del cliente de correo
+      window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
       
       setLoading(false);
       setSubmitted(true);
-    }, 1000);
+    }, 1200);
   };
 
   return (
@@ -84,18 +87,19 @@ export default function Contact() {
             </div>
           </div>
 
-          <div className="bg-white/5 p-12 md:p-20 rounded-[3.5rem] border border-white/5 backdrop-blur-md self-start shadow-2xl">
+          <div className="bg-white/5 p-12 md:p-20 rounded-[3.5rem] border border-white/5 backdrop-blur-md self-start shadow-2xl relative overflow-hidden">
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#cc0000]/5 rounded-full blur-3xl"></div>
             {submitted ? (
               <div className="text-center py-20 animate-in zoom-in duration-500">
                 <div className="bg-[#cc0000] w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-10 shadow-2xl">
                   <CheckCircle className="w-10 h-10 text-white" />
                 </div>
                 <h2 className="text-4xl font-black text-white mb-4 uppercase tracking-tighter italic">Solicitud <br/>Transmitida</h2>
-                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] max-w-xs mx-auto">Se ha abierto tu cliente de correo con los datos pre-cargados para finalizar el envío.</p>
+                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] max-w-xs mx-auto leading-relaxed">Se ha abierto tu cliente de correo para finalizar el envío hacia nuestra central.</p>
                 <button onClick={() => setSubmitted(false)} className="mt-12 text-amber-400 font-black uppercase tracking-widest text-[10px] hover:underline">Nueva Consulta</button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-10">
+              <form onSubmit={handleSubmit} className="space-y-10 relative z-10">
                 <div className="space-y-4">
                   <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">Ticket de <br/>Asesoría</h3>
                 </div>
@@ -127,7 +131,7 @@ export default function Contact() {
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full bg-[#cc0000] text-white p-6 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-red-700 transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50"
+                  className="w-full bg-[#cc0000] text-white p-6 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-red-700 transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50 active:scale-95"
                 >
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Zap className="w-4 h-4 fill-current" /> Sincronizar con Soporte</>}
                 </button>
