@@ -3,53 +3,53 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { ProjectConfig, SecurityRecommendation } from "../types.ts";
 
 export const generateSecurityProposal = async (config: ProjectConfig): Promise<SecurityRecommendation> => {
-  // Inicialización inmediata para usar la versión más reciente de la API Key
+  // Inicialización con la API KEY inyectada
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  const userPrompt = `Diseña una solución de seguridad electrónica profesional para el siguiente escenario:
-  - Tipo de Pyme: ${config.businessType}
-  - Superficie: ${config.size}
-  - Prioridades Estratégicas: ${config.priorities.join(", ")}
-  - Nivel de Inversión: ${config.budget}
-  - Ubicación Táctica: ${config.location}
+  const userPrompt = `Analiza y genera una propuesta técnica de seguridad para:
+  - Sector: ${config.businessType}
+  - Tamaño: ${config.size}
+  - Prioridades: ${config.priorities.join(", ")}
+  - Nivel: ${config.budget}
+  - Ubicación: ${config.location}
   
-  La respuesta DEBE ser un objeto JSON válido que siga estrictamente la estructura definida.`;
+  Instrucción técnica: Debes proponer hardware específico disponible en Chile y un plan de acción lógico.`;
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview",
-      contents: userPrompt,
+      model: "gemini-3-flash-preview",
+      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
       config: {
-        systemInstruction: "Eres el Ingeniero Jefe de Diseño en 'Mi Pyme Segura'. Tu especialidad es crear arquitecturas de seguridad electrónica (CCTV, Alarma, Control de Acceso) para el contexto chileno. Eres preciso, técnico y siempre priorizas la relación costo-beneficio para emprendedores. Responde ÚNICAMENTE en formato JSON.",
-        thinkingConfig: { thinkingBudget: 4096 },
+        systemInstruction: "Eres el Ingeniero Jefe de Mi Pyme Segura. Tu misión es diseñar arquitecturas de seguridad electrónica profesionales. Responde EXCLUSIVAMENTE en formato JSON siguiendo el esquema proporcionado. No añadas texto introductorio ni conclusiones fuera del JSON.",
         responseMimeType: "application/json",
+        // CRÍTICO: Configuración de tokens sincronizada para evitar errores de conexión/vacío
+        maxOutputTokens: 8192,
+        thinkingConfig: { thinkingBudget: 2048 },
         responseSchema: {
           type: Type.OBJECT,
           properties: {
             summary: { 
               type: Type.STRING, 
-              description: "Resumen ejecutivo del análisis de riesgo y la estrategia propuesta." 
+              description: "Análisis estratégico de la seguridad para esta Pyme." 
             },
             recommendedHardware: {
               type: Type.ARRAY,
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  item: { type: Type.STRING, description: "Nombre comercial del equipo." },
-                  quantity: { type: Type.NUMBER, description: "Cantidad exacta sugerida." },
-                  description: { type: Type.STRING, description: "Propósito técnico del equipo en este proyecto." }
+                  item: { type: Type.STRING },
+                  quantity: { type: Type.NUMBER },
+                  description: { type: Type.STRING }
                 },
                 required: ["item", "quantity", "description"]
               }
             },
             implementationPlan: {
               type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: "Pasos secuenciales para el despliegue técnico."
+              items: { type: Type.STRING }
             },
             estimatedTime: { 
-              type: Type.STRING, 
-              description: "Tiempo estimado de instalación (ej: 3-5 días hábiles)." 
+              type: Type.STRING 
             }
           },
           required: ["summary", "recommendedHardware", "implementationPlan", "estimatedTime"]
@@ -57,23 +57,17 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
       }
     });
 
-    if (!response.text) {
-      throw new Error("El motor de IA devolvió una respuesta vacía.");
+    const textOutput = response.text;
+    if (!textOutput) {
+      throw new Error("Respuesta vacía del motor Gemini.");
     }
 
-    // Limpieza profunda del texto recibido para evitar errores de parseo
-    let sanitizedText = response.text.trim();
-    // Eliminar delimitadores de markdown si el modelo los incluyó a pesar del mimeType
-    sanitizedText = sanitizedText.replace(/^```json\n?/, "").replace(/\n?```$/, "");
+    // Limpieza de posibles bloques markdown para asegurar JSON puro
+    const cleanJson = textOutput.replace(/```json/g, "").replace(/```/g, "").trim();
     
-    try {
-      return JSON.parse(sanitizedText) as SecurityRecommendation;
-    } catch (parseError) {
-      console.error("Error al parsear JSON de la IA:", sanitizedText);
-      throw new Error("La respuesta de la IA no tiene un formato válido.");
-    }
+    return JSON.parse(cleanJson) as SecurityRecommendation;
   } catch (error) {
-    console.error("Error crítico en geminiService:", error);
-    throw error;
+    console.error("Gemini Service Error:", error);
+    throw new Error("Error en la conexión con el servidor de IA. Inténtelo de nuevo.");
   }
 };

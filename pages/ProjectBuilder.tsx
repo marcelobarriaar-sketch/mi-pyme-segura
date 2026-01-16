@@ -17,7 +17,8 @@ import {
   Mail,
   Zap,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  ChevronRight
 } from 'lucide-react';
 import { generateSecurityProposal } from '../services/geminiService.ts';
 import { ProjectConfig, SecurityRecommendation } from '../types.ts';
@@ -56,7 +57,11 @@ export default function ProjectBuilder() {
     }));
   };
 
-  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 5));
+  const nextStep = () => {
+    setError(null);
+    setCurrentStep(prev => Math.min(prev + 1, 5));
+  };
+  
   const prevStep = () => {
     setError(null);
     setCurrentStep(prev => Math.max(prev - 1, 1));
@@ -69,8 +74,8 @@ export default function ProjectBuilder() {
       const result = await generateSecurityProposal(formData);
       setRecommendation(result);
     } catch (err: any) {
-      console.error("AI Generation Error:", err);
-      setError("No pudimos procesar tu diseño en este momento. Por favor, intenta nuevamente o contacta a soporte si el problema persiste.");
+      console.error("UI Submission Error:", err);
+      setError("No pudimos conectar con el motor de IA. Esto puede deberse a una saturación temporal. Por favor, intente generar la propuesta nuevamente.");
     } finally {
       setLoading(false);
     }
@@ -181,7 +186,7 @@ export default function ProjectBuilder() {
               </div>
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                 <button 
-                  onClick={() => { setRecommendation(null); setError(null); }}
+                  onClick={() => { setRecommendation(null); setError(null); setCurrentStep(1); }}
                   className="px-8 py-5 border-2 border-white/10 text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white/5 hover:text-white transition-all"
                 >
                   Reiniciar
@@ -234,22 +239,25 @@ export default function ProjectBuilder() {
 
         <div className="bg-white/5 rounded-[2.5rem] shadow-2xl p-12 sm:p-20 min-h-[600px] flex flex-col justify-between border border-white/5 relative overflow-hidden backdrop-blur-md">
           {loading ? (
-            <div className="flex-grow flex flex-col items-center justify-center py-20 animate-pulse">
+            <div className="flex-grow flex flex-col items-center justify-center py-20">
                <div className="w-24 h-24 bg-[#cc0000]/10 rounded-full flex items-center justify-center mb-8 relative">
                  <Loader2 className="w-12 h-12 text-[#cc0000] animate-spin" />
                  <div className="absolute inset-0 border-4 border-[#cc0000] border-t-transparent rounded-full animate-[spin_3s_linear_infinite]"></div>
                </div>
-               <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-4 text-center">Consultando Motor <br/><span className="text-[#cc0000]">Gemini Pro</span></h2>
-               <p className="text-slate-500 font-black uppercase tracking-widest text-[10px] animate-bounce">Analizando topografía y vectores de riesgo...</p>
+               <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-4 text-center">Analizando <br/><span className="text-[#cc0000]">Arquitectura de Red</span></h2>
+               <div className="space-y-3 text-center">
+                  <p className="text-slate-500 font-black uppercase tracking-widest text-[10px] animate-pulse">Cruzando datos con incidencia delictual en {formData.location}...</p>
+                  <p className="text-slate-600 font-bold text-[9px] uppercase tracking-wider">Esto puede tardar hasta 30 segundos.</p>
+               </div>
             </div>
           ) : error ? (
             <div className="flex-grow flex flex-col items-center justify-center py-20">
-               <div className="bg-red-900/20 p-8 rounded-[2rem] border border-red-500/20 text-center max-w-md">
-                 <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-6" />
-                 <h2 className="text-2xl font-black text-white uppercase italic mb-4">Error Operativo</h2>
-                 <p className="text-slate-400 font-medium mb-8 leading-relaxed">{error}</p>
-                 <button onClick={handleSubmit} className="flex items-center gap-3 bg-white text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] mx-auto hover:bg-[#cc0000] hover:text-white transition-all">
-                   <RefreshCw className="w-4 h-4" /> Reintentar Conexión
+               <div className="bg-red-900/20 p-10 rounded-[2.5rem] border border-red-500/20 text-center max-w-md shadow-2xl">
+                 <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-6" />
+                 <h2 className="text-2xl font-black text-white uppercase italic mb-4 tracking-tighter">Fallo de Comunicación</h2>
+                 <p className="text-slate-400 font-medium mb-10 leading-relaxed text-sm">{error}</p>
+                 <button onClick={handleSubmit} className="flex items-center gap-3 bg-[#cc0000] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] mx-auto hover:bg-red-700 transition-all shadow-lg shadow-red-900/40">
+                   <RefreshCw className="w-4 h-4" /> Reintentar Ahora
                  </button>
                </div>
             </div>
@@ -402,9 +410,9 @@ export default function ProjectBuilder() {
                     (currentStep === 3 && formData.priorities.length === 0) ||
                     (currentStep === 4 && !formData.location)
                   }
-                  className="px-12 py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-[#cc0000] hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white/10 shadow-2xl"
+                  className="px-12 py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-[#cc0000] hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white/10 shadow-2xl flex items-center gap-2"
                 >
-                  Continuar
+                  Continuar <ChevronRight className="w-4 h-4" />
                 </button>
               ) : (
                 <button
