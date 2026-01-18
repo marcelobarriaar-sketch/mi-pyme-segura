@@ -62,7 +62,6 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-// DATOS EXACTOS DE TU ARCHIVO JSON
 const initialAboutValues: AboutValue[] = [
   { id: 'solar', title: 'Energía Solar', description: 'Sistemas autónomos para zonas sin red eléctrica.', iconName: 'Sun' },
   { id: 'enlaces', title: 'Enlaces de Larga Distancia', description: 'Conectividad robusta en terrenos complejos.', iconName: 'Wifi' },
@@ -116,34 +115,43 @@ const initialSettings: GlobalSettings = {
 };
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Usamos una nueva versión de clave 'mps_v4' para evitar conflictos con datos antiguos
   const [projects, setProjects] = useState<Project[]>(() => {
-    const saved = localStorage.getItem('mps_projects_final');
-    return saved ? JSON.parse(saved) : initialProjects;
+    try {
+      const saved = localStorage.getItem('mps_projects_v4');
+      return saved ? JSON.parse(saved) : initialProjects;
+    } catch { return initialProjects; }
   });
 
   const [equipment, setEquipment] = useState<TeamEquipment[]>(() => {
-    const saved = localStorage.getItem('mps_equipment_final');
-    return saved ? JSON.parse(saved) : initialEquipment;
+    try {
+      const saved = localStorage.getItem('mps_equipment_v4');
+      return saved ? JSON.parse(saved) : initialEquipment;
+    } catch { return initialEquipment; }
   });
 
   const [aboutValues, setAboutValues] = useState<AboutValue[]>(() => {
-    const saved = localStorage.getItem('mps_values_final');
-    return saved ? JSON.parse(saved) : initialAboutValues;
+    try {
+      const saved = localStorage.getItem('mps_values_v4');
+      return saved ? JSON.parse(saved) : initialAboutValues;
+    } catch { return initialAboutValues; }
   });
 
   const [settings, setSettings] = useState<GlobalSettings>(() => {
-    const saved = localStorage.getItem('mps_settings_final');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return { ...initialSettings, ...parsed };
-    }
-    return initialSettings;
+    try {
+      const saved = localStorage.getItem('mps_settings_v4');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return { ...initialSettings, ...parsed };
+      }
+      return initialSettings;
+    } catch { return initialSettings; }
   });
 
-  useEffect(() => localStorage.setItem('mps_projects_final', JSON.stringify(projects)), [projects]);
-  useEffect(() => localStorage.setItem('mps_equipment_final', JSON.stringify(equipment)), [equipment]);
-  useEffect(() => localStorage.setItem('mps_values_final', JSON.stringify(aboutValues)), [aboutValues]);
-  useEffect(() => localStorage.setItem('mps_settings_final', JSON.stringify(settings)), [settings]);
+  useEffect(() => localStorage.setItem('mps_projects_v4', JSON.stringify(projects)), [projects]);
+  useEffect(() => localStorage.setItem('mps_equipment_v4', JSON.stringify(equipment)), [equipment]);
+  useEffect(() => localStorage.setItem('mps_values_v4', JSON.stringify(aboutValues)), [aboutValues]);
+  useEffect(() => localStorage.setItem('mps_settings_v4', JSON.stringify(settings)), [settings]);
 
   const addProject = (p: Omit<Project, 'id'>) => setProjects([...projects, { ...p, id: Date.now().toString() }]);
   const deleteProject = (id: string) => setProjects(projects.filter(p => p.id !== id));
