@@ -80,17 +80,6 @@ const initialProjects: Project[] = [
     image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=1200",
     supportImages: [],
     iconType: "HeartPulse"
-  },
-  {
-    id: "2",
-    title: "Estamentos Públicos y Privados",
-    type: "Gobierno y Gestión Comunitaria",
-    location: "Fresia, Región de Los Lagos",
-    description: "Despliegue de vigilancia urbana estratégica para la Ilustre Municipalidad de Fresia y sedes vecinales.",
-    result: "Aumento significativo en la protección comunitaria.",
-    image: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&q=80&w=1200",
-    supportImages: [],
-    iconType: "Building2"
   }
 ];
 
@@ -117,39 +106,36 @@ const initialSettings: GlobalSettings = {
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [projects, setProjects] = useState<Project[]>(() => {
     try {
-      const saved = localStorage.getItem('mps_projects_v4');
+      const saved = localStorage.getItem('mps_projects_v5');
       return saved ? JSON.parse(saved) : initialProjects;
     } catch { return initialProjects; }
   });
 
   const [equipment, setEquipment] = useState<TeamEquipment[]>(() => {
     try {
-      const saved = localStorage.getItem('mps_equipment_v4');
+      const saved = localStorage.getItem('mps_equipment_v5');
       return saved ? JSON.parse(saved) : initialEquipment;
     } catch { return initialEquipment; }
   });
 
   const [aboutValues, setAboutValues] = useState<AboutValue[]>(() => {
     try {
-      const saved = localStorage.getItem('mps_values_v4');
+      const saved = localStorage.getItem('mps_values_v5');
       return saved ? JSON.parse(saved) : initialAboutValues;
     } catch { return initialAboutValues; }
   });
 
   const [settings, setSettings] = useState<GlobalSettings>(() => {
     try {
-      const saved = localStorage.getItem('mps_settings_v4');
-      if (saved) {
-        return { ...initialSettings, ...JSON.parse(saved) };
-      }
-      return initialSettings;
+      const saved = localStorage.getItem('mps_settings_v5');
+      return saved ? { ...initialSettings, ...JSON.parse(saved) } : initialSettings;
     } catch { return initialSettings; }
   });
 
-  useEffect(() => localStorage.setItem('mps_projects_v4', JSON.stringify(projects)), [projects]);
-  useEffect(() => localStorage.setItem('mps_equipment_v4', JSON.stringify(equipment)), [equipment]);
-  useEffect(() => localStorage.setItem('mps_values_v4', JSON.stringify(aboutValues)), [aboutValues]);
-  useEffect(() => localStorage.setItem('mps_settings_v4', JSON.stringify(settings)), [settings]);
+  useEffect(() => localStorage.setItem('mps_projects_v5', JSON.stringify(projects)), [projects]);
+  useEffect(() => localStorage.setItem('mps_equipment_v5', JSON.stringify(equipment)), [equipment]);
+  useEffect(() => localStorage.setItem('mps_values_v5', JSON.stringify(aboutValues)), [aboutValues]);
+  useEffect(() => localStorage.setItem('mps_settings_v5', JSON.stringify(settings)), [settings]);
 
   const addProject = (p: Omit<Project, 'id'>) => setProjects([...projects, { ...p, id: Date.now().toString() }]);
   const deleteProject = (id: string) => setProjects(projects.filter(p => p.id !== id));
