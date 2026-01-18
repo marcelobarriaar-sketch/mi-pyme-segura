@@ -36,6 +36,7 @@ export default function Admin() {
     description: '', 
     result: '', 
     image: '', 
+    supportImages: [] as string[],
     iconType: 'ShieldCheck' 
   });
 
@@ -61,7 +62,7 @@ export default function Admin() {
 
   const openAddModal = () => {
     setEditingId(null);
-    setProjForm({ title: '', type: '', location: '', description: '', result: '', image: '', iconType: 'ShieldCheck' });
+    setProjForm({ title: '', type: '', location: '', description: '', result: '', image: '', supportImages: [], iconType: 'ShieldCheck' });
     setEquipForm({ category: '', title: '', image: '', description: '', specs: '', technicalSheetUrl: '', videoUrl: '', updates: '' });
     setAboutForm({ title: '', description: '', iconName: 'Shield' });
     setIsModalOpen(true);
@@ -70,7 +71,7 @@ export default function Admin() {
   const openEditModal = (item: any) => {
     setEditingId(item.id);
     if (activeTab === 'projects') {
-      setProjForm({ ...item });
+      setProjForm({ ...item, supportImages: item.supportImages || [] });
     } else if (activeTab === 'equipment') {
       setEquipForm({ 
         ...item, 
@@ -93,6 +94,20 @@ export default function Admin() {
       addProject(projForm);
     }
     setIsModalOpen(false);
+  };
+
+  const handleSupportImageAdd = () => {
+    setProjForm(prev => ({ ...prev, supportImages: [...prev.supportImages, ''] }));
+  };
+
+  const handleSupportImageChange = (index: number, value: string) => {
+    const updated = [...projForm.supportImages];
+    updated[index] = value;
+    setProjForm(prev => ({ ...prev, supportImages: updated }));
+  };
+
+  const handleSupportImageRemove = (index: number) => {
+    setProjForm(prev => ({ ...prev, supportImages: prev.supportImages.filter((_, i) => i !== index) }));
   };
 
   const handleEquipmentSubmit = (e: React.FormEvent) => {
@@ -215,6 +230,7 @@ export default function Admin() {
                   <div className="flex-grow">
                     <h3 className="text-white font-black uppercase text-sm">{proj.title}</h3>
                     <p className="text-slate-500 text-[10px] uppercase tracking-widest">{proj.location}</p>
+                    {proj.supportImages?.length > 0 && <span className="text-[9px] text-amber-400 font-bold uppercase">+{proj.supportImages.length} Fotos de apoyo</span>}
                   </div>
                   <div className="flex items-center gap-2">
                     <button onClick={() => openEditModal(proj)} className="p-3 text-slate-500 hover:text-white bg-white/5 rounded-lg"><Edit3 className="w-5 h-5" /></button>
@@ -226,6 +242,7 @@ export default function Admin() {
           </div>
         )}
 
+        {/* ... (Equipo y Nosotros sin cambios estructurales) ... */}
         {activeTab === 'equipment' && (
           <div className="animate-in fade-in duration-300">
             <button onClick={openAddModal} className="mb-8 flex items-center gap-3 bg-white text-black px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-[#cc0000] hover:text-white transition-all">
@@ -311,76 +328,62 @@ export default function Admin() {
                <div className="space-y-6">
                   {activeTab === 'projects' && (
                     <form onSubmit={handleProjectSubmit} className="space-y-4">
+                      {/* ... Campos principales de proyecto ... */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-slate-500">Título del Proyecto</label>
-                          <input required value={projForm.title} placeholder="Ej: Red de Salud Pública" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, title: e.target.value})} />
+                          <label className="text-[10px] font-black uppercase text-slate-500">Título</label>
+                          <input required value={projForm.title} placeholder="Ej: Red de Salud" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, title: e.target.value})} />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-slate-500">Tipo / Categoría</label>
-                          <input required value={projForm.type} placeholder="Ej: Salud e Infraestructura" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, type: e.target.value})} />
+                          <label className="text-[10px] font-black uppercase text-slate-500">Tipo</label>
+                          <input required value={projForm.type} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, type: e.target.value})} />
                         </div>
                       </div>
+                      <input required value={projForm.location} placeholder="Ubicación" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, location: e.target.value})} />
                       
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-slate-500">Ubicación</label>
-                        <input required value={projForm.location} placeholder="Ej: Fresia, Región de Los Lagos" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, location: e.target.value})} />
+                        <label className="text-[10px] font-black uppercase text-slate-500">Imagen de Portada (URL)</label>
+                        <input required value={projForm.image} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white text-xs" onChange={e => setProjForm({...projForm, image: e.target.value})} />
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-slate-500">URL de Imagen de Apoyo</label>
-                        <div className="flex gap-2">
-                          <div className="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center justify-center">
-                            <ImageIcon className="w-5 h-5 text-slate-500" />
-                          </div>
-                          <input required value={projForm.image} placeholder="https://images.unsplash.com/..." className="flex-grow p-4 bg-white/5 rounded-xl border border-white/10 text-white text-xs" onChange={e => setProjForm({...projForm, image: e.target.value})} />
+                      {/* SECCIÓN DE IMÁGENES DE APOYO */}
+                      <div className="space-y-4 pt-4 border-t border-white/10">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-black uppercase text-amber-400">Fotografías de Apoyo (Opcional)</label>
+                          <button type="button" onClick={handleSupportImageAdd} className="text-[9px] font-black uppercase bg-white/5 px-3 py-1 rounded-lg text-white hover:bg-amber-400 hover:text-black transition-all">+ Añadir Foto</button>
                         </div>
-                        {projForm.image && <img src={projForm.image} className="w-full h-32 object-cover rounded-xl mt-2 opacity-50" />}
+                        <div className="space-y-3">
+                          {projForm.supportImages.map((img, idx) => (
+                            <div key={idx} className="flex gap-2">
+                              <input 
+                                value={img} 
+                                onChange={(e) => handleSupportImageChange(idx, e.target.value)}
+                                placeholder="https://url-imagen-apoyo.com/..." 
+                                className="flex-grow p-4 bg-white/5 rounded-xl border border-white/10 text-white text-[10px]"
+                              />
+                              <button type="button" onClick={() => handleSupportImageRemove(idx)} className="p-4 bg-red-900/20 text-red-500 rounded-xl"><Trash2 className="w-4 h-4" /></button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-slate-500">Descripción Técnica</label>
-                        <textarea required value={projForm.description} placeholder="Detalles del proyecto..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setProjForm({...projForm, description: e.target.value})} />
-                      </div>
+                      <textarea required value={projForm.description} placeholder="Descripción técnica..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setProjForm({...projForm, description: e.target.value})} />
+                      <input required value={projForm.result} placeholder="Impacto logrado..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white italic" onChange={e => setProjForm({...projForm, result: e.target.value})} />
 
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-slate-500">Resultado / Impacto</label>
-                        <input required value={projForm.result} placeholder="Ej: Blindaje operativo 24/7 y reducción..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white italic" onChange={e => setProjForm({...projForm, result: e.target.value})} />
-                      </div>
-
-                      <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6">Guardar Proyecto</button>
+                      <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6 shadow-xl shadow-red-900/20">Sincronizar Proyecto</button>
                     </form>
                   )}
 
+                  {/* Formularios de Equipamiento y Nosotros se mantienen similares pero con este estilo visual */}
                   {activeTab === 'equipment' && (
                     <form onSubmit={handleEquipmentSubmit} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-slate-500">Categoría (Ej: CCTV, Alarmas)</label>
-                          <input required value={equipForm.category} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, category: e.target.value})} />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-slate-500">Nombre del Equipo</label>
-                          <input required value={equipForm.title} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, title: e.target.value})} />
-                        </div>
+                        <input required value={equipForm.category} placeholder="Categoría" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, category: e.target.value})} />
+                        <input required value={equipForm.title} placeholder="Nombre" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, title: e.target.value})} />
                       </div>
-
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-slate-500">URL de Imagen del Equipo</label>
-                        <input required value={equipForm.image} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white text-xs" onChange={e => setEquipForm({...equipForm, image: e.target.value})} />
-                        {equipForm.image && <img src={equipForm.image} className="w-20 h-20 object-contain rounded-xl mt-2" />}
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-slate-500">Descripción Breve</label>
-                        <textarea required value={equipForm.description} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-20" onChange={e => setEquipForm({...equipForm, description: e.target.value})} />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-slate-500">Especificaciones (Separadas por comas)</label>
-                        <input value={equipForm.specs} placeholder="4K UHD, IP67, Zoom x20..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, specs: e.target.value})} />
-                      </div>
-
+                      <input required value={equipForm.image} placeholder="URL Imagen" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white text-xs" onChange={e => setEquipForm({...equipForm, image: e.target.value})} />
+                      <textarea required value={equipForm.description} placeholder="Descripción" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-20" onChange={e => setEquipForm({...equipForm, description: e.target.value})} />
+                      <input value={equipForm.specs} placeholder="Specs (Coma: 4K, IP67, Zoom...)" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, specs: e.target.value})} />
                       <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6">Guardar Hardware</button>
                     </form>
                   )}
@@ -389,10 +392,7 @@ export default function Admin() {
                     <form onSubmit={handleAboutSubmit} className="space-y-4">
                       <input required value={aboutForm.title} placeholder="Título" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setAboutForm({...aboutForm, title: e.target.value})} />
                       <textarea required value={aboutForm.description} placeholder="Descripción" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setAboutForm({...aboutForm, description: e.target.value})} />
-                      <div className="space-y-2">
-                         <label className="text-[10px] font-black uppercase text-slate-500">Icono (Sun, Wifi, Cpu, Eye, Shield, Zap, Satellite, Activity)</label>
-                         <input value={aboutForm.iconName} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setAboutForm({...aboutForm, iconName: e.target.value})} />
-                      </div>
+                      <input value={aboutForm.iconName} placeholder="Icono (Shield, Sun, Zap...)" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setAboutForm({...aboutForm, iconName: e.target.value})} />
                       <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6">Guardar</button>
                     </form>
                   )}

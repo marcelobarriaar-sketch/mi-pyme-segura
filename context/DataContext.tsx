@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface Project {
@@ -8,7 +7,8 @@ interface Project {
   location: string;
   description: string;
   result: string;
-  image: string;
+  image: string; // Imagen principal
+  supportImages: string[]; // Imágenes de apoyo adicionales
   iconType: string;
 }
 
@@ -78,6 +78,7 @@ const initialProjects: Project[] = [
     description: "Implementación de monitoreo centralizado y control de acceso para centros hospitalarios rurales, asegurando la continuidad operativa del personal médico.",
     result: "Blindaje operativo 24/7 y reducción de incidentes en un 95%.",
     image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=1200",
+    supportImages: [],
     iconType: 'HeartPulse'
   }
 ];
