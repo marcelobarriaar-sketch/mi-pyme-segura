@@ -4,13 +4,13 @@ import App from './App';
 
 const rootElement = document.getElementById('root');
 
-if (!rootElement) {
-  console.error("Critical Error: Root element not found.");
-} else {
+if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <React.StrictMode>
       <App />
     </React.StrictMode>
   );
+} else {
+  console.error("Critical: Root element not found in DOM");
 }
