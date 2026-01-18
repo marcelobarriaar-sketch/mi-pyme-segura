@@ -45,7 +45,7 @@ interface GlobalSettings {
 interface DataContextType {
   projects: Project[];
   equipment: TeamEquipment[];
-  aboutValues: HubValue[];
+  aboutValues: AboutValue[];
   settings: GlobalSettings;
   addProject: (p: Omit<Project, 'id'>) => void;
   deleteProject: (id: string) => void;
@@ -60,10 +60,9 @@ interface DataContextType {
   importData: (data: { projects: Project[], equipment: TeamEquipment[], settings: GlobalSettings, aboutValues: AboutValue[] }) => void;
 }
 
-type HubValue = AboutValue;
-
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
+// DATOS CARGADOS DESDE EL RESPALDO DEL USUARIO
 const initialAboutValues: AboutValue[] = [
   { id: 'solar', title: 'Energía Solar', description: 'Sistemas autónomos para zonas sin red eléctrica.', iconName: 'Sun' },
   { id: 'enlaces', title: 'Enlaces de Larga Distancia', description: 'Conectividad robusta en terrenos complejos.', iconName: 'Wifi' },
@@ -73,27 +72,41 @@ const initialAboutValues: AboutValue[] = [
 
 const initialProjects: Project[] = [
   {
-    id: '1',
-    title: "Red de Salud Pública",
-    type: "Salud e Infraestructura",
-    location: "Fresia, Región de Los Lagos",
-    description: "Implementación de monitoreo centralizado y control de acceso para centros hospitalarios rurales, asegurando la continuidad operativa del personal médico.",
-    result: "Blindaje operativo 24/7 y reducción de incidentes en un 95%.",
+    id: "1",
+    title: "Red de salud pública y privada",
+    type: "Salud e Infraestructura Crítica",
+    location: "Fresia, Llanquihue, Frutillar, Maullín, Purranque",
+    description: "Implementación integral de sistemas de seguridad y monitoreo centralizado para los Hospitales de Fresia, Llanquihue, Frutillar y Maullín.",
+    result: "Blindaje operativo 24/7 en infraestructuras de salud.",
     image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=1200",
     supportImages: [],
-    iconType: 'HeartPulse'
+    iconType: "HeartPulse"
+  },
+  {
+    id: "2",
+    title: "Estamentos Públicos y Privados",
+    type: "Gobierno y Gestión Comunitaria",
+    location: "Fresia, Región de Los Lagos",
+    description: "Despliegue de vigilancia urbana estratégica para la Ilustre Municipalidad de Fresia y sedes vecinales.",
+    result: "Aumento significativo en la protección comunitaria.",
+    image: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&q=80&w=1200",
+    supportImages: [],
+    iconType: "Building2"
   }
 ];
 
 const initialEquipment: TeamEquipment[] = [
   {
-    id: 'e1',
-    category: "CCTV",
+    id: "e1",
+    category: "CCTV - Vídeo Inteligente",
     title: "Cámaras Fijas tipo Bala",
     image: "https://images.unsplash.com/photo-1557597774-9d2739f85a76?auto=format&fit=crop&q=80&w=800",
-    description: "Diseñadas para disuasión visual de largo alcance con visión nocturna infrarroja.",
-    specs: ["Resolución 4K UHD", "Protección IP67 (Clima Extremo)", "Analítica Humano/Vehículo"],
-    updates: "Firmware v5.7.10 compatible con IA avanzada."
+    description: "Diseñadas para disuasión visual y monitoreo perimetral de largo alcance.",
+    specs: [
+      "Resolución 4K/8K",
+      "Protección IP67",
+      "Analítica de Intrusión"
+    ]
   }
 ];
 
@@ -108,22 +121,22 @@ const initialSettings: GlobalSettings = {
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [projects, setProjects] = useState<Project[]>(() => {
-    const saved = localStorage.getItem('mps_projects');
+    const saved = localStorage.getItem('mps_projects_v2');
     return saved ? JSON.parse(saved) : initialProjects;
   });
 
   const [equipment, setEquipment] = useState<TeamEquipment[]>(() => {
-    const saved = localStorage.getItem('mps_equipment');
+    const saved = localStorage.getItem('mps_equipment_v2');
     return saved ? JSON.parse(saved) : initialEquipment;
   });
 
   const [aboutValues, setAboutValues] = useState<AboutValue[]>(() => {
-    const saved = localStorage.getItem('mps_about_values');
+    const saved = localStorage.getItem('mps_about_values_v2');
     return saved ? JSON.parse(saved) : initialAboutValues;
   });
 
   const [settings, setSettings] = useState<GlobalSettings>(() => {
-    const saved = localStorage.getItem('mps_settings');
+    const saved = localStorage.getItem('mps_settings_v2');
     if (saved) {
       const parsed = JSON.parse(saved);
       return { ...initialSettings, ...parsed };
@@ -131,17 +144,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return initialSettings;
   });
 
-  useEffect(() => localStorage.setItem('mps_projects', JSON.stringify(projects)), [projects]);
-  useEffect(() => localStorage.setItem('mps_equipment', JSON.stringify(equipment)), [equipment]);
-  useEffect(() => localStorage.setItem('mps_about_values', JSON.stringify(aboutValues)), [aboutValues]);
-  useEffect(() => localStorage.setItem('mps_settings', JSON.stringify(settings)), [settings]);
+  useEffect(() => localStorage.setItem('mps_projects_v2', JSON.stringify(projects)), [projects]);
+  useEffect(() => localStorage.setItem('mps_equipment_v2', JSON.stringify(equipment)), [equipment]);
+  useEffect(() => localStorage.setItem('mps_about_values_v2', JSON.stringify(aboutValues)), [aboutValues]);
+  useEffect(() => localStorage.setItem('mps_settings_v2', JSON.stringify(settings)), [settings]);
 
   const addProject = (p: Omit<Project, 'id'>) => setProjects([...projects, { ...p, id: Date.now().toString() }]);
   const deleteProject = (id: string) => setProjects(projects.filter(p => p.id !== id));
   const updateProject = (id: string, p: Project) => setProjects(projects.map(item => item.id === id ? p : item));
 
   const addEquipment = (e: Omit<TeamEquipment, 'id'>) => setEquipment([...equipment, { ...e, id: Date.now().toString() }]);
-  // Fixed typo: changed 'i.id' to 'e.id' to correctly reference the current element in filter
   const deleteEquipment = (id: string) => setEquipment(equipment.filter(e => e.id !== id));
   const updateEquipment = (id: string, e: TeamEquipment) => setEquipment(equipment.map(item => item.id === id ? e : item));
 
