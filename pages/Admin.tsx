@@ -96,17 +96,17 @@ export default function Admin() {
     setIsModalOpen(false);
   };
 
-  const handleSupportImageAdd = () => {
+  const handleAddSupportImage = () => {
     setProjForm(prev => ({ ...prev, supportImages: [...prev.supportImages, ''] }));
   };
 
-  const handleSupportImageChange = (index: number, value: string) => {
+  const handleUpdateSupportImage = (index: number, val: string) => {
     const updated = [...projForm.supportImages];
-    updated[index] = value;
+    updated[index] = val;
     setProjForm(prev => ({ ...prev, supportImages: updated }));
   };
 
-  const handleSupportImageRemove = (index: number) => {
+  const handleRemoveSupportImage = (index: number) => {
     setProjForm(prev => ({ ...prev, supportImages: prev.supportImages.filter((_, i) => i !== index) }));
   };
 
@@ -230,7 +230,7 @@ export default function Admin() {
                   <div className="flex-grow">
                     <h3 className="text-white font-black uppercase text-sm">{proj.title}</h3>
                     <p className="text-slate-500 text-[10px] uppercase tracking-widest">{proj.location}</p>
-                    {proj.supportImages?.length > 0 && <span className="text-[9px] text-amber-400 font-bold uppercase">+{proj.supportImages.length} Fotos de apoyo</span>}
+                    {proj.supportImages?.length > 0 && <span className="text-[9px] text-amber-400 font-bold uppercase tracking-widest mt-1 block">+{proj.supportImages.length} FOTOS DE APOYO</span>}
                   </div>
                   <div className="flex items-center gap-2">
                     <button onClick={() => openEditModal(proj)} className="p-3 text-slate-500 hover:text-white bg-white/5 rounded-lg"><Edit3 className="w-5 h-5" /></button>
@@ -242,7 +242,7 @@ export default function Admin() {
           </div>
         )}
 
-        {/* ... (Equipo y Nosotros sin cambios estructurales) ... */}
+        {/* ... (Equipos, Nosotros y Settings permanecen igual) ... */}
         {activeTab === 'equipment' && (
           <div className="animate-in fade-in duration-300">
             <button onClick={openAddModal} className="mb-8 flex items-center gap-3 bg-white text-black px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-[#cc0000] hover:text-white transition-all">
@@ -328,53 +328,36 @@ export default function Admin() {
                <div className="space-y-6">
                   {activeTab === 'projects' && (
                     <form onSubmit={handleProjectSubmit} className="space-y-4">
-                      {/* ... Campos principales de proyecto ... */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-slate-500">Título</label>
-                          <input required value={projForm.title} placeholder="Ej: Red de Salud" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, title: e.target.value})} />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-slate-500">Tipo</label>
-                          <input required value={projForm.type} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, type: e.target.value})} />
-                        </div>
+                        <input required value={projForm.title} placeholder="Título" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, title: e.target.value})} />
+                        <input required value={projForm.type} placeholder="Tipo" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, type: e.target.value})} />
                       </div>
                       <input required value={projForm.location} placeholder="Ubicación" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, location: e.target.value})} />
+                      <input required value={projForm.image} placeholder="URL Imagen Portada" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, image: e.target.value})} />
                       
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-slate-500">Imagen de Portada (URL)</label>
-                        <input required value={projForm.image} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white text-xs" onChange={e => setProjForm({...projForm, image: e.target.value})} />
-                      </div>
-
-                      {/* SECCIÓN DE IMÁGENES DE APOYO */}
-                      <div className="space-y-4 pt-4 border-t border-white/10">
-                        <div className="flex justify-between items-center">
-                          <label className="text-[10px] font-black uppercase text-amber-400">Fotografías de Apoyo (Opcional)</label>
-                          <button type="button" onClick={handleSupportImageAdd} className="text-[9px] font-black uppercase bg-white/5 px-3 py-1 rounded-lg text-white hover:bg-amber-400 hover:text-black transition-all">+ Añadir Foto</button>
+                      {/* GESTIÓN DE FOTOS DE APOYO */}
+                      <div className="pt-4 border-t border-white/10">
+                        <div className="flex justify-between items-center mb-4">
+                          <label className="text-[10px] font-black uppercase text-amber-400 tracking-widest">Fotos de Apoyo</label>
+                          <button type="button" onClick={handleAddSupportImage} className="px-3 py-1 bg-white/10 rounded-lg text-white font-black text-[9px] uppercase tracking-widest hover:bg-amber-400 hover:text-black transition-all">+ Añadir Foto</button>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           {projForm.supportImages.map((img, idx) => (
                             <div key={idx} className="flex gap-2">
-                              <input 
-                                value={img} 
-                                onChange={(e) => handleSupportImageChange(idx, e.target.value)}
-                                placeholder="https://url-imagen-apoyo.com/..." 
-                                className="flex-grow p-4 bg-white/5 rounded-xl border border-white/10 text-white text-[10px]"
-                              />
-                              <button type="button" onClick={() => handleSupportImageRemove(idx)} className="p-4 bg-red-900/20 text-red-500 rounded-xl"><Trash2 className="w-4 h-4" /></button>
+                              <input value={img} onChange={(e) => handleUpdateSupportImage(idx, e.target.value)} placeholder="URL Imagen Apoyo" className="flex-grow p-4 bg-white/5 rounded-xl border border-white/10 text-white text-xs" />
+                              <button type="button" onClick={() => handleRemoveSupportImage(idx)} className="p-4 bg-red-900/20 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
                             </div>
                           ))}
                         </div>
                       </div>
 
-                      <textarea required value={projForm.description} placeholder="Descripción técnica..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setProjForm({...projForm, description: e.target.value})} />
-                      <input required value={projForm.result} placeholder="Impacto logrado..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white italic" onChange={e => setProjForm({...projForm, result: e.target.value})} />
-
-                      <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6 shadow-xl shadow-red-900/20">Sincronizar Proyecto</button>
+                      <textarea required value={projForm.description} placeholder="Descripción" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setProjForm({...projForm, description: e.target.value})} />
+                      <input required value={projForm.result} placeholder="Resultado" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, result: e.target.value})} />
+                      <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6">Guardar Proyecto</button>
                     </form>
                   )}
 
-                  {/* Formularios de Equipamiento y Nosotros se mantienen similares pero con este estilo visual */}
+                  {/* Formularios de Equipamiento y Nosotros similares... */}
                   {activeTab === 'equipment' && (
                     <form onSubmit={handleEquipmentSubmit} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -7,8 +7,8 @@ interface Project {
   location: string;
   description: string;
   result: string;
-  image: string; // Imagen principal
-  supportImages: string[]; // Imágenes de apoyo adicionales
+  image: string; 
+  supportImages: string[]; 
   iconType: string;
 }
 
