@@ -242,7 +242,6 @@ export default function Admin() {
           </div>
         )}
 
-        {/* ... (Equipos, Nosotros y Settings permanecen igual) ... */}
         {activeTab === 'equipment' && (
           <div className="animate-in fade-in duration-300">
             <button onClick={openAddModal} className="mb-8 flex items-center gap-3 bg-white text-black px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-[#cc0000] hover:text-white transition-all">
@@ -329,54 +328,60 @@ export default function Admin() {
                   {activeTab === 'projects' && (
                     <form onSubmit={handleProjectSubmit} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input required value={projForm.title} placeholder="Título" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, title: e.target.value})} />
-                        <input required value={projForm.type} placeholder="Tipo" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, type: e.target.value})} />
+                        <div className="space-y-2">
+                           <label className="text-[10px] font-black uppercase text-slate-500">Título</label>
+                           <input required value={projForm.title} placeholder="Ej: Red de Salud" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, title: e.target.value})} />
+                        </div>
+                        <div className="space-y-2">
+                           <label className="text-[10px] font-black uppercase text-slate-500">Tipo</label>
+                           <input required value={projForm.type} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, type: e.target.value})} />
+                        </div>
                       </div>
                       <input required value={projForm.location} placeholder="Ubicación" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, location: e.target.value})} />
                       <input required value={projForm.image} placeholder="URL Imagen Portada" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, image: e.target.value})} />
                       
-                      {/* GESTIÓN DE FOTOS DE APOYO */}
+                      {/* GESTIÓN DINÁMICA DE FOTOS DE APOYO */}
                       <div className="pt-4 border-t border-white/10">
                         <div className="flex justify-between items-center mb-4">
-                          <label className="text-[10px] font-black uppercase text-amber-400 tracking-widest">Fotos de Apoyo</label>
-                          <button type="button" onClick={handleAddSupportImage} className="px-3 py-1 bg-white/10 rounded-lg text-white font-black text-[9px] uppercase tracking-widest hover:bg-amber-400 hover:text-black transition-all">+ Añadir Foto</button>
+                          <label className="text-[10px] font-black uppercase text-amber-400 tracking-widest">Fotos de Apoyo (Galería)</label>
+                          <button type="button" onClick={handleAddSupportImage} className="px-3 py-1 bg-white/10 rounded-lg text-white font-black text-[9px] uppercase tracking-widest hover:bg-amber-400 hover:text-black transition-all">+ Añadir URL de Foto</button>
                         </div>
                         <div className="space-y-2">
                           {projForm.supportImages.map((img, idx) => (
                             <div key={idx} className="flex gap-2">
-                              <input value={img} onChange={(e) => handleUpdateSupportImage(idx, e.target.value)} placeholder="URL Imagen Apoyo" className="flex-grow p-4 bg-white/5 rounded-xl border border-white/10 text-white text-xs" />
+                              <input value={img} onChange={(e) => handleUpdateSupportImage(idx, e.target.value)} placeholder="https://..." className="flex-grow p-4 bg-white/5 rounded-xl border border-white/10 text-white text-xs" />
                               <button type="button" onClick={() => handleRemoveSupportImage(idx)} className="p-4 bg-red-900/20 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
                             </div>
                           ))}
+                          {projForm.supportImages.length === 0 && <p className="text-[9px] text-slate-600 uppercase italic">No hay fotos de apoyo configuradas.</p>}
                         </div>
                       </div>
 
-                      <textarea required value={projForm.description} placeholder="Descripción" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setProjForm({...projForm, description: e.target.value})} />
-                      <input required value={projForm.result} placeholder="Resultado" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, result: e.target.value})} />
-                      <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6">Guardar Proyecto</button>
+                      <textarea required value={projForm.description} placeholder="Descripción Técnica" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setProjForm({...projForm, description: e.target.value})} />
+                      <input required value={projForm.result} placeholder="Impacto/Resultado" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, result: e.target.value})} />
+                      <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6">Sincronizar Cambios</button>
                     </form>
                   )}
 
-                  {/* Formularios de Equipamiento y Nosotros similares... */}
                   {activeTab === 'equipment' && (
                     <form onSubmit={handleEquipmentSubmit} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input required value={equipForm.category} placeholder="Categoría" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, category: e.target.value})} />
-                        <input required value={equipForm.title} placeholder="Nombre" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, title: e.target.value})} />
+                        <input required value={equipForm.title} placeholder="Nombre del Equipo" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, title: e.target.value})} />
                       </div>
-                      <input required value={equipForm.image} placeholder="URL Imagen" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white text-xs" onChange={e => setEquipForm({...equipForm, image: e.target.value})} />
-                      <textarea required value={equipForm.description} placeholder="Descripción" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-20" onChange={e => setEquipForm({...equipForm, description: e.target.value})} />
-                      <input value={equipForm.specs} placeholder="Specs (Coma: 4K, IP67, Zoom...)" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, specs: e.target.value})} />
-                      <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6">Guardar Hardware</button>
+                      <input required value={equipForm.image} placeholder="URL Imagen Principal" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white text-xs" onChange={e => setEquipForm({...equipForm, image: e.target.value})} />
+                      <textarea required value={equipForm.description} placeholder="Resumen Técnico" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-20" onChange={e => setEquipForm({...equipForm, description: e.target.value})} />
+                      <input value={equipForm.specs} placeholder="Ficha Técnica (Coma: 4K, IP67, Zoom...)" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, specs: e.target.value})} />
+                      <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6">Actualizar Hardware</button>
                     </form>
                   )}
 
                   {activeTab === 'about' && (
                     <form onSubmit={handleAboutSubmit} className="space-y-4">
-                      <input required value={aboutForm.title} placeholder="Título" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setAboutForm({...aboutForm, title: e.target.value})} />
-                      <textarea required value={aboutForm.description} placeholder="Descripción" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setAboutForm({...aboutForm, description: e.target.value})} />
-                      <input value={aboutForm.iconName} placeholder="Icono (Shield, Sun, Zap...)" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setAboutForm({...aboutForm, iconName: e.target.value})} />
-                      <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6">Guardar</button>
+                      <input required value={aboutForm.title} placeholder="Título Diferencial" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setAboutForm({...aboutForm, title: e.target.value})} />
+                      <textarea required value={aboutForm.description} placeholder="Descripción del valor" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setAboutForm({...aboutForm, description: e.target.value})} />
+                      <input value={aboutForm.iconName} placeholder="Nombre Icono (Shield, Zap, Sun...)" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setAboutForm({...aboutForm, iconName: e.target.value})} />
+                      <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6">Guardar Valor</button>
                     </form>
                   )}
                </div>
