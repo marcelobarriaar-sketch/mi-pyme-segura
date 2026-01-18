@@ -1,10 +1,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ProjectConfig, SecurityRecommendation } from "../types.ts";
 
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
 export const generateSecurityProposal = async (config: ProjectConfig): Promise<SecurityRecommendation> => {
-  // Inicialización con la API KEY del entorno
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  
   const userPrompt = `Como Ingeniero Jefe de Mi Pyme Segura, diseña una arquitectura de seguridad electrónica profesional para:
   - Sector: ${config.businessType}
   - Superficie: ${config.size}
@@ -16,13 +15,11 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview", // Modelo superior para diseño técnico
+      model: "gemini-3-pro-preview",
       contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
       config: {
-        systemInstruction: "Eres un experto senior en seguridad electrónica. Generas diseños de proyectos de seguridad profesional en formato JSON. El hardware debe ser coherente con el mercado chileno.",
+        systemInstruction: "Eres un experto senior en seguridad electrónica de Mi Pyme Segura. Generas diseños de proyectos de seguridad profesional en formato JSON. Sé extremadamente detallista y profesional.",
         responseMimeType: "application/json",
-        maxOutputTokens: 4096,
-        thinkingConfig: { thinkingBudget: 1024 }, // Permite a la IA "razonar" el diseño
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -50,14 +47,25 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
       }
     });
 
-    const text = response.text;
-    if (!text) throw new Error("La IA no devolvió datos.");
-
-    // Limpieza de posibles bloques de código Markdown
-    const cleanJson = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    return JSON.parse(cleanJson) as SecurityRecommendation;
+    return JSON.parse(response.text) as SecurityRecommendation;
   } catch (error) {
     console.error("Error en motor IA:", error);
-    throw new Error("No pudimos procesar tu diseño. Reintenta en unos momentos.");
+    throw new Error("Error de conexión con el núcleo táctico.");
+  }
+};
+
+export const quickAiConsult = async (message: string): Promise<string> => {
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [{ role: 'user', parts: [{ text: message }] }],
+      config: {
+        systemInstruction: "Eres ALFA-1, el asistente táctico de 'Mi Pyme Segura'. Responde de forma breve, profesional y técnica. Ayuda a emprendedores a entender conceptos de CCTV, alarmas y sensores. Estás en Chile.",
+        maxOutputTokens: 200,
+      }
+    });
+    return response.text || "Lo siento, la señal está débil. Reintenta.";
+  } catch (error) {
+    return "Error de enlace. Sistema ALFA-1 fuera de línea temporalmente.";
   }
 };

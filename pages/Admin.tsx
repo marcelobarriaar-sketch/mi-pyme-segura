@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { useData } from '../context/DataContext.tsx';
 import { 
@@ -7,7 +6,7 @@ import {
   CheckCircle, Info, AlertCircle,
   FileText, History, Video, Download, Upload, Database,
   Users, Sun, Wifi, Cpu, Eye, Shield, Zap, Satellite, Activity,
-  Layout, Mail, Link as LinkIcon, RefreshCw
+  Layout, Mail, Link as LinkIcon, RefreshCw, Image as ImageIcon
 } from 'lucide-react';
 
 const valueIcons: Record<string, any> = {
@@ -30,8 +29,27 @@ export default function Admin() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Forms
-  const [projForm, setProjForm] = useState({ title: '', type: '', location: '', description: '', result: '', image: '', iconType: 'ShieldCheck' });
-  const [equipForm, setEquipForm] = useState({ category: '', title: '', image: '', description: '', specs: '', technicalSheetUrl: '', videoUrl: '', updates: '' });
+  const [projForm, setProjForm] = useState({ 
+    title: '', 
+    type: '', 
+    location: '', 
+    description: '', 
+    result: '', 
+    image: '', 
+    iconType: 'ShieldCheck' 
+  });
+
+  const [equipForm, setEquipForm] = useState({ 
+    category: '', 
+    title: '', 
+    image: '', 
+    description: '', 
+    specs: '', 
+    technicalSheetUrl: '', 
+    videoUrl: '', 
+    updates: '' 
+  });
+
   const [aboutForm, setAboutForm] = useState({ title: '', description: '', iconName: 'Shield' });
   const [settingsForm, setSettingsForm] = useState(settings);
 
@@ -67,7 +85,8 @@ export default function Admin() {
     setIsModalOpen(true);
   };
 
-  const handleProjectSubmit = () => {
+  const handleProjectSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (editingId) {
       updateProject(editingId, { ...projForm, id: editingId });
     } else {
@@ -76,7 +95,8 @@ export default function Admin() {
     setIsModalOpen(false);
   };
 
-  const handleEquipmentSubmit = () => {
+  const handleEquipmentSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     const formattedSpecs = equipForm.specs.split(',').map(s => s.trim()).filter(s => s !== '');
     if (editingId) {
       updateEquipment(editingId, { ...equipForm, id: editingId, specs: formattedSpecs });
@@ -86,20 +106,14 @@ export default function Admin() {
     setIsModalOpen(false);
   };
 
-  const handleAboutSubmit = () => {
+  const handleAboutSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (editingId) {
       updateAboutValue(editingId, { ...aboutForm, id: editingId });
     } else {
       addAboutValue(aboutForm);
     }
     setIsModalOpen(false);
-  };
-
-  const handleValueInstantUpdate = (id: string, field: 'title' | 'description', value: string) => {
-    const original = aboutValues.find(v => v.id === id);
-    if (original) {
-      updateAboutValue(id, { ...original, [field]: value });
-    }
   };
 
   const exportBackup = () => {
@@ -135,10 +149,6 @@ export default function Admin() {
       }
     };
     reader.readAsText(file);
-  };
-
-  const syncEmails = () => {
-    setSettingsForm(prev => ({ ...prev, contactRecipient: prev.email }));
   };
 
   if (!isAuthenticated) {
@@ -193,38 +203,6 @@ export default function Admin() {
           </div>
         </header>
 
-        {/* --- TABS CONTENT --- */}
-        {activeTab === 'about' && (
-          <div className="animate-in fade-in duration-300">
-            <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
-              <button onClick={openAddModal} className="w-full sm:w-auto flex items-center justify-center gap-3 bg-white text-black px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all">
-                <Plus className="w-4 h-4" /> Nuevo Diferencial
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {aboutValues.map((val) => {
-                const IconComp = valueIcons[val.iconName] || Shield;
-                return (
-                  <div key={val.id} className="bg-white/5 border border-white/5 p-8 rounded-[2rem] hover:border-amber-400/30 transition-all flex flex-col gap-6 relative group">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-4">
-                        <div className="bg-[#cc0000]/20 p-4 rounded-2xl">
-                          <IconComp className="w-6 h-6 text-amber-400" />
-                        </div>
-                        <h3 className="text-white font-black uppercase text-sm">{val.title}</h3>
-                      </div>
-                      <div className="flex gap-2">
-                        <button onClick={() => openEditModal(val)} className="p-3 text-slate-500 hover:text-white bg-white/5 rounded-xl transition-colors"><Edit3 className="w-4 h-4" /></button>
-                        <button onClick={() => { if(confirm('¿Eliminar?')) deleteAboutValue(val.id) }} className="p-3 text-slate-500 hover:text-red-500 bg-white/5 rounded-xl transition-colors"><Trash2 className="w-4 h-4" /></button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
         {activeTab === 'projects' && (
           <div className="animate-in fade-in duration-300">
             <button onClick={openAddModal} className="mb-8 flex items-center gap-3 bg-white text-black px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-[#cc0000] hover:text-white transition-all">
@@ -271,94 +249,152 @@ export default function Admin() {
           </div>
         )}
 
+        {activeTab === 'about' && (
+          <div className="animate-in fade-in duration-300">
+            <button onClick={openAddModal} className="mb-8 flex items-center justify-center gap-3 bg-white text-black px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-amber-400 transition-all">
+              <Plus className="w-4 h-4" /> Nuevo Diferencial
+            </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {aboutValues.map((val) => {
+                const IconComp = valueIcons[val.iconName] || Shield;
+                return (
+                  <div key={val.id} className="bg-white/5 border border-white/5 p-8 rounded-[2rem] hover:border-amber-400/30 transition-all flex flex-col gap-6 relative group">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-[#cc0000]/20 p-4 rounded-2xl">
+                          <IconComp className="w-6 h-6 text-amber-400" />
+                        </div>
+                        <h3 className="text-white font-black uppercase text-sm">{val.title}</h3>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => openEditModal(val)} className="p-3 text-slate-500 hover:text-white bg-white/5 rounded-xl transition-colors"><Edit3 className="w-4 h-4" /></button>
+                        <button onClick={() => { if(confirm('¿Eliminar?')) deleteAboutValue(val.id) }} className="p-3 text-slate-500 hover:text-red-500 bg-white/5 rounded-xl transition-colors"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {activeTab === 'settings' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-in slide-in-from-bottom-4">
             <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/5">
               <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Layout className="text-[#cc0000]" /> Interfaz Home</h2>
-              <div className="space-y-6 mb-12">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Frase Central (Hero)</label>
-                  <input value={settingsForm.heroTitle} onChange={e => setSettingsForm({...settingsForm, heroTitle: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-black uppercase italic" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Frase Secundaria (Descripción)</label>
-                  <textarea value={settingsForm.heroSubtitle} onChange={e => setSettingsForm({...settingsForm, heroSubtitle: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-slate-300 font-medium h-24" />
-                </div>
-              </div>
-
-              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Mail className="text-[#cc0000]" /> Canales de Comunicación</h2>
-              <div className="space-y-8 mb-12 bg-white/2 p-8 rounded-3xl border border-white/5">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-black text-[#cc0000] uppercase tracking-widest ml-1">Email Destinatario Operativo</label>
-                    <button 
-                      onClick={syncEmails}
-                      className="text-[9px] font-black text-amber-400 uppercase tracking-widest flex items-center gap-1 hover:underline"
-                    >
-                      <RefreshCw className="w-3 h-3" /> Sincronizar con Email Público
-                    </button>
-                  </div>
-                  <input 
-                    value={settingsForm.contactRecipient} 
-                    onChange={e => setSettingsForm({...settingsForm, contactRecipient: e.target.value})} 
-                    className="w-full p-4 bg-black/40 rounded-xl border-2 border-[#cc0000]/30 text-amber-400 font-bold" 
-                    placeholder="Email donde llegarán los leads" 
-                  />
-                  <p className="text-[9px] text-slate-500 font-medium leading-relaxed">
-                    <Info className="w-3 h-3 inline-block mr-1" />
-                    Este es el email "Individualizado" donde recibirás todas las consultas internas y diseños de IA.
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Público (Muestra en Web)</label>
-                  <input value={settingsForm.email} onChange={e => setSettingsForm({...settingsForm, email: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" />
-                </div>
-              </div>
-
-              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Settings className="text-[#cc0000]" /> Otros Datos</h2>
               <div className="space-y-6">
+                <input value={settingsForm.heroTitle} onChange={e => setSettingsForm({...settingsForm, heroTitle: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-black uppercase italic" placeholder="Título Hero" />
+                <textarea value={settingsForm.heroSubtitle} onChange={e => setSettingsForm({...settingsForm, heroSubtitle: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-slate-300 font-medium h-24" placeholder="Subtítulo Hero" />
+                <input value={settingsForm.email} onChange={e => setSettingsForm({...settingsForm, email: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" placeholder="Email Público" />
                 <input value={settingsForm.address} onChange={e => setSettingsForm({...settingsForm, address: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" placeholder="Dirección" />
                 <input value={settingsForm.phone} onChange={e => setSettingsForm({...settingsForm, phone: e.target.value})} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white font-bold" placeholder="Teléfono" />
-                <button onClick={() => { updateSettings(settingsForm); alert('Sincronizado'); }} className="w-full bg-[#cc0000] text-white py-5 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-900/40 transition-all hover:scale-[1.02]"><Save className="w-4 h-4 inline-block mr-2" /> Sincronizar Sistema</button>
+                <button onClick={() => { updateSettings(settingsForm); alert('Sincronizado'); }} className="w-full bg-[#cc0000] text-white py-5 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-900/40 transition-all"><Save className="w-4 h-4 inline-block mr-2" /> Guardar Cambios</button>
               </div>
             </div>
-
             <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/5 flex flex-col h-fit">
-              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Database className="text-[#cc0000]" /> Backup & Respaldo</h2>
-              <p className="text-slate-500 text-xs mb-8 leading-relaxed font-medium">Descarga una copia completa de tu base de datos (proyectos, equipos y configuración) para restauración rápida.</p>
-              <button onClick={exportBackup} className="w-full bg-white text-black py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] mb-4 group transition-all hover:bg-amber-400"><Download className="w-4 h-4 inline-block mr-2 group-hover:animate-bounce" /> Exportar .JSON</button>
+              <h2 className="text-2xl font-black text-white uppercase italic mb-8 flex items-center gap-3"><Database className="text-[#cc0000]" /> Respaldo de Datos</h2>
+              <button onClick={exportBackup} className="w-full bg-white text-black py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] mb-4 hover:bg-amber-400 transition-all"><Download className="w-4 h-4 inline-block mr-2" /> Exportar Backup .JSON</button>
               <button onClick={handleImportClick} className="w-full bg-white/5 border border-white/10 text-slate-400 py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:text-white hover:bg-white/10 transition-all"><Upload className="w-4 h-4 inline-block mr-2" /> Importar Backup</button>
               <input type="file" ref={fileInputRef} className="hidden" accept=".json" onChange={importBackup} />
             </div>
           </div>
         )}
 
-        {/* --- MODAL (REUSED) --- */}
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl">
-             <div className="w-full max-w-xl bg-[#020617] border border-white/10 p-10 rounded-[3rem] overflow-y-auto max-h-[90vh]">
-               {/* Modal content based on activeTab... (omitted for brevity but kept functional in full logic) */}
+             <div className="w-full max-w-2xl bg-[#020617] border border-white/10 p-10 rounded-[3rem] overflow-y-auto max-h-[90vh]">
                <div className="flex justify-between items-center mb-10 text-white font-black uppercase italic text-xl">
-                 <span>{editingId ? 'Editar' : 'Nuevo'} Item</span>
+                 <span>{editingId ? 'Editar' : 'Nuevo'} Item - {activeTab.toUpperCase()}</span>
                  <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white"><X /></button>
                </div>
-               {/* Form logic (matches previous state) */}
+               
                <div className="space-y-6">
                   {activeTab === 'projects' && (
-                    <>
-                      <input value={projForm.title} placeholder="Nombre" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, title: e.target.value})} />
-                      <input value={projForm.location} placeholder="Ubicación" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, location: e.target.value})} />
-                      <textarea value={projForm.description} placeholder="Descripción" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setProjForm({...projForm, description: e.target.value})} />
-                      <button onClick={handleProjectSubmit} className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs">Guardar</button>
-                    </>
+                    <form onSubmit={handleProjectSubmit} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase text-slate-500">Título del Proyecto</label>
+                          <input required value={projForm.title} placeholder="Ej: Red de Salud Pública" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, title: e.target.value})} />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase text-slate-500">Tipo / Categoría</label>
+                          <input required value={projForm.type} placeholder="Ej: Salud e Infraestructura" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, type: e.target.value})} />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-500">Ubicación</label>
+                        <input required value={projForm.location} placeholder="Ej: Fresia, Región de Los Lagos" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setProjForm({...projForm, location: e.target.value})} />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-500">URL de Imagen de Apoyo</label>
+                        <div className="flex gap-2">
+                          <div className="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center justify-center">
+                            <ImageIcon className="w-5 h-5 text-slate-500" />
+                          </div>
+                          <input required value={projForm.image} placeholder="https://images.unsplash.com/..." className="flex-grow p-4 bg-white/5 rounded-xl border border-white/10 text-white text-xs" onChange={e => setProjForm({...projForm, image: e.target.value})} />
+                        </div>
+                        {projForm.image && <img src={projForm.image} className="w-full h-32 object-cover rounded-xl mt-2 opacity-50" />}
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-500">Descripción Técnica</label>
+                        <textarea required value={projForm.description} placeholder="Detalles del proyecto..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setProjForm({...projForm, description: e.target.value})} />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-500">Resultado / Impacto</label>
+                        <input required value={projForm.result} placeholder="Ej: Blindaje operativo 24/7 y reducción..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white italic" onChange={e => setProjForm({...projForm, result: e.target.value})} />
+                      </div>
+
+                      <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6">Guardar Proyecto</button>
+                    </form>
                   )}
+
                   {activeTab === 'equipment' && (
-                    <>
-                      <input value={equipForm.title} placeholder="Equipo" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, title: e.target.value})} />
-                      <textarea value={equipForm.description} placeholder="Descripción" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setEquipForm({...equipForm, description: e.target.value})} />
-                      <button onClick={handleEquipmentSubmit} className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs">Guardar</button>
-                    </>
+                    <form onSubmit={handleEquipmentSubmit} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase text-slate-500">Categoría (Ej: CCTV, Alarmas)</label>
+                          <input required value={equipForm.category} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, category: e.target.value})} />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase text-slate-500">Nombre del Equipo</label>
+                          <input required value={equipForm.title} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, title: e.target.value})} />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-500">URL de Imagen del Equipo</label>
+                        <input required value={equipForm.image} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white text-xs" onChange={e => setEquipForm({...equipForm, image: e.target.value})} />
+                        {equipForm.image && <img src={equipForm.image} className="w-20 h-20 object-contain rounded-xl mt-2" />}
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-500">Descripción Breve</label>
+                        <textarea required value={equipForm.description} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-20" onChange={e => setEquipForm({...equipForm, description: e.target.value})} />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-500">Especificaciones (Separadas por comas)</label>
+                        <input value={equipForm.specs} placeholder="4K UHD, IP67, Zoom x20..." className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setEquipForm({...equipForm, specs: e.target.value})} />
+                      </div>
+
+                      <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6">Guardar Hardware</button>
+                    </form>
+                  )}
+
+                  {activeTab === 'about' && (
+                    <form onSubmit={handleAboutSubmit} className="space-y-4">
+                      <input required value={aboutForm.title} placeholder="Título" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setAboutForm({...aboutForm, title: e.target.value})} />
+                      <textarea required value={aboutForm.description} placeholder="Descripción" className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white h-24" onChange={e => setAboutForm({...aboutForm, description: e.target.value})} />
+                      <div className="space-y-2">
+                         <label className="text-[10px] font-black uppercase text-slate-500">Icono (Sun, Wifi, Cpu, Eye, Shield, Zap, Satellite, Activity)</label>
+                         <input value={aboutForm.iconName} className="w-full p-4 bg-white/5 rounded-xl border border-white/10 text-white" onChange={e => setAboutForm({...aboutForm, iconName: e.target.value})} />
+                      </div>
+                      <button type="submit" className="w-full bg-[#cc0000] py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs mt-6">Guardar</button>
+                    </form>
                   )}
                </div>
              </div>
