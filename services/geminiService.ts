@@ -14,9 +14,11 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
   Debes recomendar hardware específico (CCTV IP, Alarmas Grado 3, etc.) y un plan de despliegue lógico.`;
 
   try {
+    // Calling generateContent with gemini-3-pro-preview for complex design tasks
     const response = await ai.models.generateContent({
       model: "gemini-3-pro-preview",
-      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+      // Use string prompt directly as per guidelines
+      contents: userPrompt,
       config: {
         systemInstruction: "Eres un experto senior en seguridad electrónica de Mi Pyme Segura. Generas diseños de proyectos de seguridad profesional en formato JSON. Sé extremadamente detallista y profesional.",
         responseMimeType: "application/json",
@@ -47,7 +49,9 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
       }
     });
 
-    return JSON.parse(response.text) as SecurityRecommendation;
+    // Extract generated text using the .text property
+    const responseText = response.text || "{}";
+    return JSON.parse(responseText) as SecurityRecommendation;
   } catch (error) {
     console.error("Error en motor IA:", error);
     throw new Error("Error de conexión con el núcleo táctico.");
@@ -56,14 +60,19 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
 
 export const quickAiConsult = async (message: string): Promise<string> => {
   try {
+    // Calling generateContent with gemini-3-flash-preview for quick Q&A tasks
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: [{ role: 'user', parts: [{ text: message }] }],
+      // Use string prompt directly
+      contents: message,
       config: {
         systemInstruction: "Eres ALFA-1, el asistente táctico de 'Mi Pyme Segura'. Responde de forma breve, profesional y técnica. Ayuda a emprendedores a entender conceptos de CCTV, alarmas y sensores. Estás en Chile.",
+        // Paired maxOutputTokens with thinkingBudget as required for Gemini 3 models
         maxOutputTokens: 200,
+        thinkingConfig: { thinkingBudget: 100 },
       }
     });
+    // Extract generated text using the .text property
     return response.text || "Lo siento, la señal está débil. Reintenta.";
   } catch (error) {
     return "Error de enlace. Sistema ALFA-1 fuera de línea temporalmente.";

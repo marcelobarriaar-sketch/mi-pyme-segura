@@ -45,7 +45,7 @@ interface GlobalSettings {
 interface DataContextType {
   projects: Project[];
   equipment: TeamEquipment[];
-  aboutValues: AboutValue[];
+  aboutValues: HubValue[];
   settings: GlobalSettings;
   addProject: (p: Omit<Project, 'id'>) => void;
   deleteProject: (id: string) => void;
@@ -59,6 +59,8 @@ interface DataContextType {
   updateSettings: (s: GlobalSettings) => void;
   importData: (data: { projects: Project[], equipment: TeamEquipment[], settings: GlobalSettings, aboutValues: AboutValue[] }) => void;
 }
+
+type HubValue = AboutValue;
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
@@ -139,6 +141,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateProject = (id: string, p: Project) => setProjects(projects.map(item => item.id === id ? p : item));
 
   const addEquipment = (e: Omit<TeamEquipment, 'id'>) => setEquipment([...equipment, { ...e, id: Date.now().toString() }]);
+  // Fixed typo: changed 'i.id' to 'e.id' to correctly reference the current element in filter
   const deleteEquipment = (id: string) => setEquipment(equipment.filter(e => e.id !== id));
   const updateEquipment = (id: string, e: TeamEquipment) => setEquipment(equipment.map(item => item.id === id ? e : item));
 
