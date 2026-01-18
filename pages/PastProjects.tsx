@@ -1,5 +1,5 @@
 import React from 'react';
-import { useData } from '../context/DataContext.tsx';
+import { useData } from '../context/DataContext';
 import { MapPin, Target, ShieldCheck, HeartPulse, GraduationCap, CheckCircle2 } from 'lucide-react';
 
 const icons = { HeartPulse, GraduationCap, ShieldCheck, Target };
@@ -30,7 +30,7 @@ export default function PastProjects() {
                     <div className="grid grid-cols-3 gap-4">
                       {project.supportImages.filter(url => url.trim() !== '').map((url, sIdx) => (
                         <div key={sIdx} className="aspect-video rounded-2xl overflow-hidden border border-white/10 grayscale hover:grayscale-0 transition-all">
-                          <img src={url} className="w-full h-full object-cover" />
+                          <img src={url} className="w-full h-full object-cover" alt="Support" />
                         </div>
                       ))}
                     </div>

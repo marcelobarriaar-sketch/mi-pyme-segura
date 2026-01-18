@@ -1,11 +1,11 @@
 import React from 'react';
-import { useData } from '../context/DataContext.tsx';
-import { History, ExternalLink, Play } from 'lucide-react';
+import { useData } from '../context/DataContext';
+import { History, ExternalLink } from 'lucide-react';
 
 const EquipmentCard: React.FC<{ 
   title: string, category: string, image: string, description: string, specs: string[],
   technicalSheetUrl?: string, videoUrl?: string, updates?: string
-}> = ({ title, category, image, description, specs, technicalSheetUrl, videoUrl, updates }) => (
+}> = ({ title, category, image, description, specs, technicalSheetUrl, updates }) => (
   <div className="group relative bg-white/5 rounded-[2.5rem] border border-white/5 shadow-xl overflow-hidden hover:border-amber-400/30 transition-all duration-500 flex flex-col">
     <div className="relative h-64 overflow-hidden bg-white/5">
       <img src={image} alt={title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110" />

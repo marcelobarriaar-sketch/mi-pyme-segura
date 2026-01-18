@@ -1,5 +1,5 @@
 import React from 'react';
-import { useData } from '../context/DataContext.tsx';
+import { useData } from '../context/DataContext';
 import { 
   Target, Rocket, Sun, Wifi, Eye, Cpu, Shield, Zap, Satellite, Activity, Mountain
 } from 'lucide-react';
@@ -15,7 +15,7 @@ export default function About() {
     <div className="animate-in fade-in duration-700 bg-[#020617]">
       <section className="relative py-40 overflow-hidden border-b border-white/5">
         <div className="absolute inset-0 z-0">
-          <img src="https://images.unsplash.com/photo-1518005020480-1097cbb4bb09?auto=format&fit=crop&q=80&w=2400" className="w-full h-full object-cover opacity-10 grayscale" />
+          <img src="https://images.unsplash.com/photo-1518005020480-1097cbb4bb09?auto=format&fit=crop&q=80&w=2400" className="w-full h-full object-cover opacity-10 grayscale" alt="About" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-transparent to-[#020617]"></div>
         </div>
         <div className="max-w-7xl mx-auto px-4 relative z-10">
@@ -39,7 +39,7 @@ export default function About() {
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {aboutValues.map((val, idx) => {
+              {aboutValues.map((val) => {
                 const IconComp = valueIcons[val.iconName] || Shield;
                 return (
                   <div key={val.id} className="bg-white/5 p-8 rounded-[2rem] border border-white/5 hover:border-amber-400/30 transition-all group relative overflow-hidden">

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useData } from '../context/DataContext.tsx';
-import { Mail, Phone, MapPin, Zap, Loader2, CheckCircle } from 'lucide-react';
+import { useData } from '../context/DataContext';
+import { Mail, Phone, MapPin, Zap } from 'lucide-react';
 
 export default function Contact() {
   const { settings } = useData();
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [, setSubmitted] = useState(false);
+  const [, setLoading] = useState(false);
+  const [formData] = useState({ name: '', email: '', message: '' });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

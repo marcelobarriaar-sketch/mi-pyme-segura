@@ -5,21 +5,17 @@ import {
   Factory, 
   Home as HomeIcon, 
   Camera, 
-  ShieldAlert,
   Sparkles,
   Loader2,
   CheckCircle,
-  FileText,
   ShieldCheck,
   Mail,
-  RefreshCw,
-  AlertCircle,
   ChevronRight,
   Target
 } from 'lucide-react';
-import { generateSecurityProposal } from '../services/geminiService.ts';
-import { ProjectConfig, SecurityRecommendation } from '../types.ts';
-import { useData } from '../context/DataContext.tsx';
+import { generateSecurityProposal } from '../services/geminiService';
+import { ProjectConfig, SecurityRecommendation } from '../types';
+import { useData } from '../context/DataContext';
 
 const steps = [
   { id: 1, title: 'Sector' },
@@ -33,9 +29,8 @@ export default function ProjectBuilder() {
   const { settings } = useData();
   const [currentStep, setCurrentStep] = React.useState(1);
   const [loading, setLoading] = React.useState(false);
-  const [sendingEmail, setSendingEmail] = React.useState(false);
   const [recommendation, setRecommendation] = React.useState<SecurityRecommendation | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
+  const [, setError] = React.useState<string | null>(null);
   
   const [formData, setFormData] = React.useState<ProjectConfig>({
     businessType: '',
@@ -79,30 +74,25 @@ export default function ProjectBuilder() {
 
   const handleSendProposalEmail = () => {
     if (!recommendation) return;
-    setSendingEmail(true);
 
-    setTimeout(() => {
-      const recipient = settings.contactRecipient || settings.email;
-      const subject = encodeURIComponent(`[DOSSIER TÁCTICO] Diseño de Seguridad: ${formData.businessType} - ${formData.location}`);
-      const body = encodeURIComponent(
-        `REPORTE DE DISEÑO TÉCNICO - MI PYME SEGURA\n` +
-        `===============================================\n\n` +
-        `PERFIL: ${formData.businessType} | ${formData.location}\n\n` +
-        `ANÁLISIS IA:\n${recommendation.summary}\n\n` +
-        `ESTIMACIÓN: ${recommendation.estimatedTime}\n\n` +
-        `===============================================`
-      );
+    const recipient = settings.contactRecipient || settings.email;
+    const subject = encodeURIComponent(`[DOSSIER TÁCTICO] Diseño de Seguridad: ${formData.businessType} - ${formData.location}`);
+    const body = encodeURIComponent(
+      `REPORTE DE DISEÑO TÉCNICO - MI PYME SEGURA\n` +
+      `===============================================\n\n` +
+      `PERFIL: ${formData.businessType} | ${formData.location}\n\n` +
+      `ANÁLISIS IA:\n${recommendation.summary}\n\n` +
+      `ESTIMACIÓN: ${recommendation.estimatedTime}\n\n` +
+      `===============================================`
+    );
 
-      window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
-      setSendingEmail(false);
-    }, 1000);
+    window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
   };
 
   if (recommendation) {
     return (
       <div className="max-w-5xl mx-auto py-24 px-4 animate-in zoom-in duration-700">
         <div className="bg-[#020617] rounded-[2rem] border border-[#cc0000]/30 shadow-2xl relative overflow-hidden">
-          {/* Watermark */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] rotate-45 select-none pointer-events-none">
             <span className="text-[10rem] font-black uppercase tracking-[1em] text-white">CONFIDENTIAL</span>
           </div>
@@ -182,7 +172,6 @@ export default function ProjectBuilder() {
           <h1 className="text-5xl font-black text-white mb-6 uppercase tracking-tighter italic heading-tactical">NÚCLEO <span className="text-[#cc0000]">IA</span></h1>
         </div>
 
-        {/* Stepper Simple */}
         <div className="mb-20 flex justify-center gap-4">
           {steps.map(s => (
             <div key={s.id} className={`w-8 h-1 rounded-full ${currentStep >= s.id ? 'bg-[#cc0000]' : 'bg-white/10'}`}></div>
@@ -214,7 +203,6 @@ export default function ProjectBuilder() {
                     </div>
                   </div>
                 )}
-                {/* Simplified logic for brevity, matches original but with v2 styling */}
                 {currentStep === 2 && (
                   <div className="space-y-10">
                     <h2 className="text-3xl font-black text-white uppercase italic heading-tactical">02_SUPERFICIE</h2>
