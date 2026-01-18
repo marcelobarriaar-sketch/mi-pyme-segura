@@ -62,6 +62,7 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
+// DATOS EXACTOS DE TU ARCHIVO JSON
 const initialAboutValues: AboutValue[] = [
   { id: 'solar', title: 'Energía Solar', description: 'Sistemas autónomos para zonas sin red eléctrica.', iconName: 'Sun' },
   { id: 'enlaces', title: 'Enlaces de Larga Distancia', description: 'Conectividad robusta en terrenos complejos.', iconName: 'Wifi' },
@@ -116,22 +117,22 @@ const initialSettings: GlobalSettings = {
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [projects, setProjects] = useState<Project[]>(() => {
-    const saved = localStorage.getItem('mps_projects_v3');
+    const saved = localStorage.getItem('mps_projects_final');
     return saved ? JSON.parse(saved) : initialProjects;
   });
 
   const [equipment, setEquipment] = useState<TeamEquipment[]>(() => {
-    const saved = localStorage.getItem('mps_equipment_v3');
+    const saved = localStorage.getItem('mps_equipment_final');
     return saved ? JSON.parse(saved) : initialEquipment;
   });
 
   const [aboutValues, setAboutValues] = useState<AboutValue[]>(() => {
-    const saved = localStorage.getItem('mps_about_values_v3');
+    const saved = localStorage.getItem('mps_values_final');
     return saved ? JSON.parse(saved) : initialAboutValues;
   });
 
   const [settings, setSettings] = useState<GlobalSettings>(() => {
-    const saved = localStorage.getItem('mps_settings_v3');
+    const saved = localStorage.getItem('mps_settings_final');
     if (saved) {
       const parsed = JSON.parse(saved);
       return { ...initialSettings, ...parsed };
@@ -139,10 +140,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return initialSettings;
   });
 
-  useEffect(() => localStorage.setItem('mps_projects_v3', JSON.stringify(projects)), [projects]);
-  useEffect(() => localStorage.setItem('mps_equipment_v3', JSON.stringify(equipment)), [equipment]);
-  useEffect(() => localStorage.setItem('mps_about_values_v3', JSON.stringify(aboutValues)), [aboutValues]);
-  useEffect(() => localStorage.setItem('mps_settings_v3', JSON.stringify(settings)), [settings]);
+  useEffect(() => localStorage.setItem('mps_projects_final', JSON.stringify(projects)), [projects]);
+  useEffect(() => localStorage.setItem('mps_equipment_final', JSON.stringify(equipment)), [equipment]);
+  useEffect(() => localStorage.setItem('mps_values_final', JSON.stringify(aboutValues)), [aboutValues]);
+  useEffect(() => localStorage.setItem('mps_settings_final', JSON.stringify(settings)), [settings]);
 
   const addProject = (p: Omit<Project, 'id'>) => setProjects([...projects, { ...p, id: Date.now().toString() }]);
   const deleteProject = (id: string) => setProjects(projects.filter(p => p.id !== id));
