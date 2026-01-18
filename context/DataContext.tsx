@@ -62,7 +62,6 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-// DATOS CARGADOS DESDE EL RESPALDO DEL USUARIO
 const initialAboutValues: AboutValue[] = [
   { id: 'solar', title: 'Energía Solar', description: 'Sistemas autónomos para zonas sin red eléctrica.', iconName: 'Sun' },
   { id: 'enlaces', title: 'Enlaces de Larga Distancia', description: 'Conectividad robusta en terrenos complejos.', iconName: 'Wifi' },
@@ -102,11 +101,7 @@ const initialEquipment: TeamEquipment[] = [
     title: "Cámaras Fijas tipo Bala",
     image: "https://images.unsplash.com/photo-1557597774-9d2739f85a76?auto=format&fit=crop&q=80&w=800",
     description: "Diseñadas para disuasión visual y monitoreo perimetral de largo alcance.",
-    specs: [
-      "Resolución 4K/8K",
-      "Protección IP67",
-      "Analítica de Intrusión"
-    ]
+    specs: ["Resolución 4K/8K", "Protección IP67", "Analítica de Intrusión"]
   }
 ];
 
@@ -121,22 +116,22 @@ const initialSettings: GlobalSettings = {
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [projects, setProjects] = useState<Project[]>(() => {
-    const saved = localStorage.getItem('mps_projects_v2');
+    const saved = localStorage.getItem('mps_projects_v3');
     return saved ? JSON.parse(saved) : initialProjects;
   });
 
   const [equipment, setEquipment] = useState<TeamEquipment[]>(() => {
-    const saved = localStorage.getItem('mps_equipment_v2');
+    const saved = localStorage.getItem('mps_equipment_v3');
     return saved ? JSON.parse(saved) : initialEquipment;
   });
 
   const [aboutValues, setAboutValues] = useState<AboutValue[]>(() => {
-    const saved = localStorage.getItem('mps_about_values_v2');
+    const saved = localStorage.getItem('mps_about_values_v3');
     return saved ? JSON.parse(saved) : initialAboutValues;
   });
 
   const [settings, setSettings] = useState<GlobalSettings>(() => {
-    const saved = localStorage.getItem('mps_settings_v2');
+    const saved = localStorage.getItem('mps_settings_v3');
     if (saved) {
       const parsed = JSON.parse(saved);
       return { ...initialSettings, ...parsed };
@@ -144,10 +139,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return initialSettings;
   });
 
-  useEffect(() => localStorage.setItem('mps_projects_v2', JSON.stringify(projects)), [projects]);
-  useEffect(() => localStorage.setItem('mps_equipment_v2', JSON.stringify(equipment)), [equipment]);
-  useEffect(() => localStorage.setItem('mps_about_values_v2', JSON.stringify(aboutValues)), [aboutValues]);
-  useEffect(() => localStorage.setItem('mps_settings_v2', JSON.stringify(settings)), [settings]);
+  useEffect(() => localStorage.setItem('mps_projects_v3', JSON.stringify(projects)), [projects]);
+  useEffect(() => localStorage.setItem('mps_equipment_v3', JSON.stringify(equipment)), [equipment]);
+  useEffect(() => localStorage.setItem('mps_about_values_v3', JSON.stringify(aboutValues)), [aboutValues]);
+  useEffect(() => localStorage.setItem('mps_settings_v3', JSON.stringify(settings)), [settings]);
 
   const addProject = (p: Omit<Project, 'id'>) => setProjects([...projects, { ...p, id: Date.now().toString() }]);
   const deleteProject = (id: string) => setProjects(projects.filter(p => p.id !== id));
