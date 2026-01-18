@@ -115,7 +115,6 @@ const initialSettings: GlobalSettings = {
 };
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Usamos una nueva versión de clave 'mps_v4' para evitar conflictos con datos antiguos
   const [projects, setProjects] = useState<Project[]>(() => {
     try {
       const saved = localStorage.getItem('mps_projects_v4');
@@ -141,8 +140,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const saved = localStorage.getItem('mps_settings_v4');
       if (saved) {
-        const parsed = JSON.parse(saved);
-        return { ...initialSettings, ...parsed };
+        return { ...initialSettings, ...JSON.parse(saved) };
       }
       return initialSettings;
     } catch { return initialSettings; }
@@ -167,7 +165,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateSettings = (s: GlobalSettings) => setSettings(s);
 
-  const importData = (data: { projects: Project[], equipment: TeamEquipment[], settings: GlobalSettings, aboutValues: AboutValue[] }) => {
+  const importData = (data: any) => {
     if (data.projects) setProjects(data.projects);
     if (data.equipment) setEquipment(data.equipment);
     if (data.settings) setSettings(data.settings);

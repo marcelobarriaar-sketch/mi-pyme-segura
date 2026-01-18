@@ -1,25 +1,16 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import App from './App';
 
-const mountApp = () => {
-  const rootElement = document.getElementById('root');
+const container = document.getElementById('root');
 
-  if (rootElement) {
-    const root = ReactDOM.createRoot(rootElement);
-    root.render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    );
-  } else {
-    console.error("Critical: Root element not found in DOM");
-  }
-};
-
-// Asegurar que el DOM esté listo antes de montar
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mountApp);
+if (container) {
+  const root = createRoot(container);
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
 } else {
-  mountApp();
+  console.error("Falla Crítica: No se encontró el elemento raíz 'root'.");
 }
