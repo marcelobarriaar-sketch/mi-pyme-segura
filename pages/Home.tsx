@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useData } from '../context/DataContext.tsx';
-import { Eye, Bell, ArrowRight, Lock, Globe, Zap, Crosshair } from 'lucide-react';
+import { useData } from '../context/DataContext';
+import { Eye, Bell, ArrowRight, Lock, Globe, Zap } from 'lucide-react';
 
 const TrackingBox = ({ top, left, label, delay = "0s", color = "yellow" }: { top: string, left: string, label: string, delay?: string, color?: "red" | "yellow" }) => {
   const colorClass = color === "red" ? "border-[#cc0000]" : "border-amber-400/60";
@@ -76,7 +76,7 @@ export default function Home() {
           </div>
           
           <h1 className="text-5xl md:text-[8rem] font-black text-white mb-8 leading-[0.85] tracking-tighter uppercase italic drop-shadow-2xl heading-tactical">
-            {settings.heroTitle.split(',').map((part, i) => (
+            {settings.heroTitle.split(',').map((part: string, i: number) => (
               <React.Fragment key={i}>
                 {i === 1 ? <span className="text-[#cc0000]">{part}</span> : part}
                 {i === 0 && settings.heroTitle.includes(',') && <br/>}
