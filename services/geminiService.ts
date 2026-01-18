@@ -2,34 +2,31 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { ProjectConfig, SecurityRecommendation } from "../types.ts";
 
 export const generateSecurityProposal = async (config: ProjectConfig): Promise<SecurityRecommendation> => {
-  // Inicialización con la API KEY inyectada
+  // Inicialización con la API KEY del entorno
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  const userPrompt = `Como Ingeniero Jefe de Mi Pyme Segura, diseña una solución técnica para:
-  - Tipo de Pyme: ${config.businessType}
+  const userPrompt = `Como Ingeniero Jefe de Mi Pyme Segura, diseña una arquitectura de seguridad electrónica profesional para:
+  - Sector: ${config.businessType}
   - Superficie: ${config.size}
   - Prioridades: ${config.priorities.join(", ")}
-  - Nivel de Seguridad: ${config.budget}
-  - Ciudad/Zona: ${config.location}
+  - Nivel de Blindaje: ${config.budget}
+  - Ubicación: ${config.location}
   
-  Debes proponer hardware real (CCTV IP, Alarmas grado 2 o 3, etc.) y un cronograma de ejecución.`;
+  Debes recomendar hardware específico (CCTV IP, Alarmas Grado 3, etc.) y un plan de despliegue lógico.`;
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview", // Usamos Pro para mayor capacidad de diseño técnico
+      model: "gemini-3-pro-preview", // Modelo superior para diseño técnico
       contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
       config: {
-        systemInstruction: "Eres un experto senior en seguridad electrónica chileno. Generas diseños de proyectos de seguridad profesional. Responde EXCLUSIVAMENTE en formato JSON.",
+        systemInstruction: "Eres un experto senior en seguridad electrónica. Generas diseños de proyectos de seguridad profesional en formato JSON. El hardware debe ser coherente con el mercado chileno.",
         responseMimeType: "application/json",
         maxOutputTokens: 4096,
-        thinkingConfig: { thinkingBudget: 1024 }, // Presupuesto para razonamiento técnico
+        thinkingConfig: { thinkingBudget: 1024 }, // Permite a la IA "razonar" el diseño
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            summary: { 
-              type: Type.STRING, 
-              description: "Análisis estratégico y justificación técnica del diseño." 
-            },
+            summary: { type: Type.STRING },
             recommendedHardware: {
               type: Type.ARRAY,
               items: {
@@ -46,9 +43,7 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
               type: Type.ARRAY,
               items: { type: Type.STRING }
             },
-            estimatedTime: { 
-              type: Type.STRING 
-            }
+            estimatedTime: { type: Type.STRING }
           },
           required: ["summary", "recommendedHardware", "implementationPlan", "estimatedTime"]
         }
@@ -56,19 +51,13 @@ export const generateSecurityProposal = async (config: ProjectConfig): Promise<S
     });
 
     const text = response.text;
-    if (!text) throw new Error("No se recibió respuesta del cerebro IA.");
+    if (!text) throw new Error("La IA no devolvió datos.");
 
-    // Limpieza profunda de la respuesta para evitar errores de parseo
+    // Limpieza de posibles bloques de código Markdown
     const cleanJson = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    
-    try {
-      return JSON.parse(cleanJson) as SecurityRecommendation;
-    } catch (parseError) {
-      console.error("Error al procesar JSON de IA:", text);
-      throw new Error("La respuesta de la IA no pudo ser procesada como un proyecto válido.");
-    }
+    return JSON.parse(cleanJson) as SecurityRecommendation;
   } catch (error) {
-    console.error("Error en Gemini Service:", error);
-    throw error;
+    console.error("Error en motor IA:", error);
+    throw new Error("No pudimos procesar tu diseño. Reintenta en unos momentos.");
   }
 };

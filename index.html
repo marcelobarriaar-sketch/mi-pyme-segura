@@ -15,6 +15,34 @@
             background: #cc0000; color: white; padding: 15px; z-index: 9999; 
             font-family: monospace; font-size: 12px; text-align: center;
         }
+        .scanline {
+          width: 100%;
+          height: 100px;
+          z-index: 5;
+          background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(204, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0) 100%);
+          opacity: 0.1;
+          position: absolute;
+          bottom: 100%;
+          animation: scanline 10s linear infinite;
+        }
+        @keyframes scanline {
+          0% { bottom: 100%; }
+          100% { bottom: -100px; }
+        }
+        @keyframes tracking-move {
+          0%, 100% { transform: translate(0, 0); }
+          25% { transform: translate(20px, -15px); }
+          50% { transform: translate(-10px, 30px); }
+          75% { transform: translate(15px, 10px); }
+        }
+        .hud-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Animaciones personalizadas */
+        @keyframes pulse-soft {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.8; }
+        }
+        .animate-pulse-soft { animation: pulse-soft 3s infinite; }
     </style>
     <script>
         window.onerror = function(msg, url, line) {
@@ -36,10 +64,10 @@
     "react-router-dom": "https://esm.sh/react-router-dom@7.0.0?external=react,react-dom",
     "lucide-react": "https://esm.sh/lucide-react@0.462.0?external=react",
     "@google/genai": "https://esm.sh/@google/genai@1.36.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
     "vite": "https://esm.sh/vite@^7.3.1",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
