@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext.tsx';
-import { Eye, Bell, ArrowRight, ShieldCheck, Lock, Globe, Target, Crosshair, Zap, Terminal } from 'lucide-react';
+import { Eye, Bell, ArrowRight, Lock, Globe, Zap, Crosshair } from 'lucide-react';
 
 const TrackingBox = ({ top, left, label, delay = "0s", color = "yellow" }: { top: string, left: string, label: string, delay?: string, color?: "red" | "yellow" }) => {
   const colorClass = color === "red" ? "border-[#cc0000]" : "border-amber-400/60";
   const textClass = color === "red" ? "text-[#cc0000]" : "text-amber-400/80";
   const bgClass = color === "red" ? "bg-[#cc0000]/5" : "bg-amber-400/5";
-  const iconColor = color === "red" ? "text-[#cc0000]" : "text-amber-400";
-
+  
   return (
     <div 
       className="absolute z-20 pointer-events-none animate-[tracking-move_12s_infinite_ease-in-out] hidden md:block"
@@ -33,35 +32,6 @@ const TrackingBox = ({ top, left, label, delay = "0s", color = "yellow" }: { top
           </div>
         </div>
       </div>
-    </div>
-  );
-};
-
-const LiveLogs = () => {
-  const [logs, setLogs] = useState<string[]>(["[SYS] Booting secure kernel...", "[AI] Monitoring active zones..."]);
-  const logPool = [
-    "[SCAN] Zone B-4: Clear",
-    "[AI] Pattern analysis complete",
-    "[SYS] Encrypting data stream...",
-    "[NET] Connection: High Bandwidth",
-    "[ALARM] Test signal: OK",
-    "[AI] Intrusion prediction: Low",
-    "[SCAN] Human detection active",
-    "[SYS] Backup synced to cloud"
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLogs(prev => [logPool[Math.floor(Math.random() * logPool.length)], ...prev].slice(0, 5));
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="hud-mono text-[8px] text-emerald-500/60 uppercase p-4 space-y-1">
-      {logs.map((log, i) => (
-        <div key={i} className={i === 0 ? "text-emerald-400 animate-pulse" : ""}>{log}</div>
-      ))}
     </div>
   );
 };
@@ -96,14 +66,6 @@ export default function Home() {
         <div className="absolute inset-0 z-10 pointer-events-none">
           <TrackingBox top="20%" left="15%" label="ENTRY_PORTAL_S1" delay="0s" color="yellow" />
           <TrackingBox top="75%" left="70%" label="OFFSITE_BACKUP" delay="-4s" color="yellow" />
-          
-          <div className="absolute left-10 bottom-24 hidden lg:block w-48 border-l border-white/10 bg-black/20 backdrop-blur-md rounded-r-xl overflow-hidden">
-            <div className="bg-white/5 p-2 flex items-center gap-2 border-b border-white/10">
-              <Terminal className="w-3 h-3 text-[#cc0000]" />
-              <span className="text-[8px] font-black uppercase text-white">System Logs</span>
-            </div>
-            <LiveLogs />
-          </div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 relative z-30 flex flex-col items-center text-center">
