@@ -12,5 +12,5 @@ if (container) {
     </React.StrictMode>
   );
 } else {
-  console.error("Falla Crítica: No se encontró el elemento raíz 'root' en el DOM.");
+  console.error("Falla Crítica: No se encontró el elemento raíz 'root'.");
 }
