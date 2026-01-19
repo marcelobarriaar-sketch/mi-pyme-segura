@@ -1,5 +1,7 @@
 {
   "name": "Mi Pyme Segura - Soluciones de Seguridad Inteligente",
-  "description": "Una plataforma integral para que pequeñas y medianas empresas diseñen e instalen sistemas de seguridad personalizados con el apoyo de inteligencia artificial.",
-  "requestFramePermissions": []
+  "description": "Plataforma táctica para el diseño de seguridad electrónica mediante IA, lista para el ecosistema Google Cloud.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }
