@@ -1,4 +1,3 @@
-
 export interface ProjectConfig {
   businessType: string;
   size: string;
@@ -16,21 +15,4 @@ export interface SecurityRecommendation {
   }[];
   implementationPlan: string[];
   estimatedTime: string;
-}
-
-export interface TeamMember {
-  id: number;
-  name: string;
-  role: string;
-  bio: string;
-  imageUrl: string;
-}
-
-export interface PastProject {
-  id: number;
-  title: string;
-  client: string;
-  description: string;
-  imageUrl: string;
-  results: string;
 }

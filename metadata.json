@@ -1,6 +1,6 @@
 {
-  "name": "Mi Pyme Segura - Soluciones de Seguridad Inteligente",
-  "description": "Plataforma táctica para el diseño de seguridad electrónica mediante IA, lista para el ecosistema Google Cloud.",
+  "name": "Mi Pyme Segura V2",
+  "description": "Plataforma Táctica de Seguridad Electrónica",
   "requestFramePermissions": [
     "geolocation"
   ]
